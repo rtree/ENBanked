@@ -111,17 +111,16 @@ const SendETH = () => {
   //   }, 3000)
   //   return () => clearInterval(interval)
   // }, [transactionId])
-  
+
   const fetchTransactionHash = async (txId: string) => {
+    const query = `https://developer.worldcoin.org/api/v2/minikit/transaction/${txId}?app_id=${import.meta.env.WORLD_APP_ID}&type=transaction`
     try {
-      const response = await fetch(
-        `https://developer.worldcoin.org/api/v2/minikit/transaction/${txId}?app_id=${import.meta.env.WORLD_APP_ID}&type=transaction`
-      )
+      const response = await fetch(query)
       const data = await response.json()
       debug('🔍 txHash取得', data.transactionHash)
       setTxHash(data.transactionHash)
     } catch (error) {
-      debug('❌ txHash取得失敗', error)
+      debug(`❌ txHash取得失敗:${query}`, error)
     }
   }
 
