@@ -110,18 +110,16 @@ const SendETH = () => {
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
         💰 Receive
       </button>
-      {transactionId && MiniKit.user.walletAddress && (
         <p>
           Check wallet by Blockscout:{' '}
           <a
-            href={`https://worldchain-mainnet.explorer.blockscout.com/address/${MiniKit.user.walletAddress}`}
+            href={`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
             target="_blank"
             rel="noreferrer"
           >
-            https://worldchain-mainnet.explorer.blockscout.com/address/{MiniKit.user.walletAddress}
+            {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
           </a>
         </p>
-      )}
       {txHash && (
         <p>
           TxHash:{' '}
