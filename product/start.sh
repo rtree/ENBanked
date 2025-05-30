@@ -17,13 +17,13 @@ fi
 tmux send-keys -t "$SESSION":0.0 "cd $PROJECT_DIR/product/frontend && pnpm install && pnpm run dev" C-m
 
 # Top-right: ngrok（installが終わるまで10秒待機）
-tmux send-keys -t "$SESSION":0.1 "cd $PROJECT_DIR/product/frontend && sleep 10 && ngrok start frontend --config ./ngrok.yml" C-m
+tmux send-keys -t "$SESSION":0.1 "cd $PROJECT_DIR/product/frontend; ngrok start frontend --config ./ngrok.yml" C-m
 
 # Bottom-left: interactive shell
 tmux send-keys -t "$SESSION":0.2 "cd $PROJECT_DIR" C-m
 
 # Bottom-right: git pull loop
-tmux send-keys -t "$SESSION":0.3 "cd $PROJECT_DIR && while true; do git pull -v; sleep 5; done" C-m
+tmux send-keys -t "$SESSION":0.3 "cd $PROJECT_DIR && while true; do git pull -v; sleep 3; done" C-m
 
 # セッションを表示
 tmux attach-session -t "$SESSION"
