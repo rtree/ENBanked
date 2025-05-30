@@ -1,13 +1,17 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
+const { MNEMONIC, ALCHEMY_API_KEY } = process.env;
+
 module.exports = {
+  solidity: "0.8.19",
   networks: {
-    worldchain: {
-      url: "https://worldchain-mainnet.g.alchemy.com/v2/yYqkQNEKuzDKgYc35KTC35iwZ9oHRy3u",
+    worldChainMainnet: {
+      url: `https://worldchain-mainnet.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
       chainId: 480,
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: {
+        mnemonic: MNEMONIC
+      }
     },
   },
-  solidity: "0.8.19",
 };
