@@ -1,9 +1,11 @@
-// scripts/deploy.js
+const hre = require("hardhat");
+
 async function main() {
-  const VaultETH = await ethers.getContractFactory("VaultETH");
-  const vault = await VaultETH.deploy();
-  await vault.deployed();
-  console.log("✅ VaultETH deployed to:", vault.address);
+  const Vault = await hre.ethers.getContractFactory("VaultETH");
+  const vault = await Vault.deploy();
+  await vault.waitForDeployment();
+
+  console.log("✅ VaultETH deployed to:", await vault.getAddress());
 }
 
 main().catch((error) => {
