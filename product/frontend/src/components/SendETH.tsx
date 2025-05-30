@@ -85,35 +85,6 @@ const SendETH = () => {
     }
   }
 
-  // useEffect(() => {
-  //   if (!transactionId) return
-
-  //   const interval = setInterval(async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `https://developer.worldcoin.org/api/v2/minikit/transaction/${transactionId}?app_id=${import.meta.env.VITE_APP_ID}&type=transaction`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${import.meta.env.VITE_DEV_PORTAL_API_KEY}`,
-  //           },
-  //         }
-  //       )
-
-  //       const data = await res.json()
-
-  //       if (data.transactionHash && data.transactionStatus !== 'failed') {
-  //         setTxHash(data.transactionHash)
-  //         debug(`🔍 TxHash取得完了`, data.transactionHash)
-  //         clearInterval(interval)
-  //       } else {
-  //         debug(`⏳ Tx確認中...`)
-  //       }
-  //     } catch (err) {
-  //       debug(`❌ Tx取得失敗`, err)
-  //     }
-  //   }, 3000)
-  //   return () => clearInterval(interval)
-  // }, [transactionId])
 
   return (
     <div>
