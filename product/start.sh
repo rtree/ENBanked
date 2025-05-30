@@ -14,10 +14,10 @@ fi
 
 # ペインごとにコマンド実行
 # Top-left: dev server
-tmux send-keys -t "$SESSION":0.0 "cd $PROJECT_DIR/produc/frontend && pnpm install && pnpm run dev" C-m
+tmux send-keys -t "$SESSION":0.0 "cd $PROJECT_DIR/product/frontend && pnpm install && pnpm run dev" C-m
 
 # Top-right: ngrok（installが終わるまで10秒待機）
-tmux send-keys -t "$SESSION":0.1 "cd $PROJECT_DIR/produc/frontend && sleep 10 && ngrok start frontend --config ./ngrok.yml" C-m
+tmux send-keys -t "$SESSION":0.1 "cd $PROJECT_DIR/product/frontend && sleep 10 && ngrok start frontend --config ./ngrok.yml" C-m
 
 # Bottom-left: interactive shell
 tmux send-keys -t "$SESSION":0.2 "cd $PROJECT_DIR" C-m
