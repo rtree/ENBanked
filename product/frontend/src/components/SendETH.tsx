@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
-import { useWaitForTransactionReceipt } from '@worldcoin/minikit-react'
-import { http, createPublicClient } from 'viem'
-import { worldchain } from 'viem/chains'
 
 const vaultAbi = [
   {
@@ -22,18 +19,27 @@ const vaultAbi = [
 ]
 
 const contractAddress = '0x76D72a4bf89Bb2327759826046FabE9BDA884E8B'
-const blockExplorerBase = 'https://worldchain-mainnet.explorer.alchemy.com'
 
-const getTxExplorerUrl = (txHash: string) => `${blockExplorerBase}/tx/${txHash}`
+const WORLD_CHAIN_PARAMS = {
+  chainId: '0x1e0', // 480
+  chainName: 'World Chain',
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: ['https://worldchain-mainnet.g.alchemy.com/v2/yYqkQNEKuzDKgYc35KTC35iwZ9oHRy3u'],
+  blockExplorerUrls: ['https://worldchain-mainnet.explorer.alchemy.com/'],
+}
 
-const client = createPublicClient({
-  chain: worldchain,
-  transport: http('https://worldchain-mainnet.g.alchemy.com/public'),
-})
+const blockExplorerBase = WORLD_CHAIN_PARAMS.blockExplorerUrls[0].replace(/\/$/, '')
+
+const getTxExplorerUrl = (txHash: string) =>
+  `${blockExplorerBase}/tx/${txHash}`
 
 const SendETH = () => {
-  const [transactionId, setTransactionId] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
+  const [transactionId, setTransactionId] = useState<string | null>(null)
   const [log, setLog] = useState('')
 
   const debug = (label: string, data?: any) => {
@@ -42,33 +48,12 @@ const SendETH = () => {
     setLog(prev => prev + '\n' + line)
   }
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed, error } = useWaitForTransactionReceipt({
-    client,
-    appConfig: {
-      app_id: import.meta.env.VITE_APP_ID || '',
-    },
-    transactionId: transactionId || '',
-  })
-
-  // 成功時の副作用
-  useEffect(() => {
-    if (isConfirmed) {
-      debug('✅ トランザクション成功')
-      // TxHashは useWaitForTransactionReceipt の返り値からは直接取得できない場合が多いので
-      // 必要なら MiniKit の返り値や他のAPIから取得してください
-    }
-  }, [isConfirmed])
-
-  // エラー時の副作用
-  useEffect(() => {
-    if (error) {
-      debug('💥 トランザクション失敗', error)
-    }
-  }, [error])
-
   const sendTx = async (action: 'deposit' | 'withdraw') => {
-    debug(`⏳ ${action} 開始`)
-    if (!MiniKit.isInstalled()) {
+    debug(`⏳ ${action}開始`)
+    const isMiniApp = MiniKit.isInstalled()
+    const valueInWei = '0x1'
+
+    if (!isMiniApp) {
       debug('⚠️ MiniKit未検出。World Appから開いてください。')
       return
     }
@@ -81,30 +66,63 @@ const SendETH = () => {
             abi: vaultAbi,
             functionName: action,
             args: [],
-            value: action === 'deposit' ? '0x1' : undefined,
+            value: action === 'deposit' ? valueInWei : undefined,
           },
         ],
       })
 
+      debug(`📦 MiniKit ${action} result`, finalPayload)
+
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id)
-        debug(`📦 transaction_id`, finalPayload.transaction_id)
+        setTxHash(null)
+        debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
       } else {
-        debug(`❌ トランザクションエラー`, finalPayload)
+        debug(`❌ トランザクション送信失敗`, finalPayload)
       }
     } catch (err) {
-      debug(`💥 MiniKit 送信失敗`, err)
+      debug(`💥 MiniKit ${action}例外`, err)
     }
   }
+
+  useEffect(() => {
+    if (!transactionId) return
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `https://developer.worldcoin.org/api/v2/minikit/transaction/${transactionId}?app_id=${import.meta.env.VITE_APP_ID}&type=transaction`,
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_DEV_PORTAL_API_KEY}`,
+            },
+          }
+        )
+
+        const data = await res.json()
+
+        if (data.transactionHash && data.transactionStatus !== 'failed') {
+          setTxHash(data.transactionHash)
+          debug(`🔍 TxHash取得完了`, data.transactionHash)
+          clearInterval(interval)
+        } else {
+          debug(`⏳ Tx確認中...`)
+        }
+      } catch (err) {
+        debug(`❌ Tx取得失敗`, err)
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [transactionId])
 
   return (
     <div>
       <button onClick={() => sendTx('deposit')}>💸 預ける</button>
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
-        💰 受け取る
+        💰 受取り
       </button>
 
-      {isConfirming && <p>🔄 トランザクション確認中...</p>}
       {txHash && (
         <p>
           TxHash:{' '}
