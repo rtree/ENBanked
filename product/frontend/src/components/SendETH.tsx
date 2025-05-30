@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
-//
+
 const vaultAbi = [
   {
     name: 'deposit',
@@ -37,11 +37,9 @@ const blockExplorerBase = WORLD_CHAIN_PARAMS.blockExplorerUrls[0].replace(/\/$/,
 const getTxExplorerUrl = (txHash: string) =>
   `${blockExplorerBase}/tx/${txHash}`
 
-
 const SendETH = () => {
-  //const { openTxToast } = useNotification()
   const [txHash, setTxHash] = useState<string | null>(null)
-  const [minikitResult, setMinikitResult] = useState<any>(null) // Add this state
+  const [transactionId, setTransactionId] = useState<string | null>(null)
   const [log, setLog] = useState('')
 
   const debug = (label: string, data?: any) => {
@@ -55,51 +53,83 @@ const SendETH = () => {
     const isMiniApp = MiniKit.isInstalled()
     const valueInWei = '0x1'
 
-    if (isMiniApp) {
-      debug('🌐 MiniApp環境（MiniKit使用）')
-      try {
-        const result = await MiniKit.commandsAsync.sendTransaction({
-          transaction: [
-            {
-              address: contractAddress,
-              abi: vaultAbi,
-              functionName: action,
-              args: [],
-              value: action === 'deposit' ? valueInWei : undefined,
-            },
-          ],
-        })
-        debug(`📦 MiniKit ${action} result`, result)
-        setMinikitResult(result) // Store the result for BlockScoutTxStatus
-        setTxHash(null) // Clear txHash, since BlockScoutTxStatus will resolve it
-      } catch (err) {
-        debug(`💥 MiniKit ${action}例外`, err)
+    if (!isMiniApp) {
+      debug('⚠️ MiniKit未検出。World Appから開いてください。')
+      return
+    }
+
+    try {
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: contractAddress,
+            abi: vaultAbi,
+            functionName: action,
+            args: [],
+            value: action === 'deposit' ? valueInWei : undefined,
+          },
+        ],
+      })
+
+      debug(`📦 MiniKit ${action} result`, finalPayload)
+
+      if (finalPayload.status === 'success') {
+        setTransactionId(finalPayload.transaction_id)
+        setTxHash(null)
+        debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
+      } else {
+        debug(`❌ トランザクション送信失敗`, finalPayload)
       }
-    } else {
-      setMinikitResult(null) // Clear minikitResult for MetaMask
+    } catch (err) {
+      debug(`💥 MiniKit ${action}例外`, err)
     }
   }
 
+  useEffect(() => {
+    if (!transactionId) return
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `https://developer.worldcoin.org/api/v2/minikit/transaction/${transactionId}?app_id=${import.meta.env.VITE_APP_ID}&type=transaction`,
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.VITE_DEV_PORTAL_API_KEY}`,
+            },
+          }
+        )
+
+        const data = await res.json()
+
+        if (data.transactionHash && data.transactionStatus !== 'failed') {
+          setTxHash(data.transactionHash)
+          debug(`🔍 TxHash取得完了`, data.transactionHash)
+          clearInterval(interval)
+        } else {
+          debug(`⏳ Tx確認中...`)
+        }
+      } catch (err) {
+        debug(`❌ Tx取得失敗`, err)
+      }
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [transactionId])
+
   return (
     <div>
-      <button onClick={() => sendTx('deposit')}>
-        💸 預ける
-      </button>
+      <button onClick={() => sendTx('deposit')}>💸 預ける</button>
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
         💰 受取り
       </button>
 
-      {(txHash || minikitResult) && (
-        <>
-          {txHash && (
-            <p>
-              TxHash:{' '}
-              <a href={getTxExplorerUrl(txHash)} target="_blank" rel="noreferrer">
-                {txHash}
-              </a>
-            </p>
-          )}
-        </>
+      {txHash && (
+        <p>
+          TxHash:{' '}
+          <a href={getTxExplorerUrl(txHash)} target="_blank" rel="noreferrer">
+            {txHash}
+          </a>
+        </p>
       )}
 
       <pre
