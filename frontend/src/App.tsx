@@ -4,7 +4,7 @@ import SendETH from './components/SendETH'
 
 const App = () => {
   useEffect(() => {
-    MiniKit.install('app_31bbb6f9ca99b37c7ee18620c48f92da')
+    MiniKit.install('app_c22b23e8101db637591586c4a8ca02b1')
   }, [])
 
   return (
