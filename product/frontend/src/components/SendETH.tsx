@@ -83,10 +83,10 @@ const SendETH = () => {
   return (
     <div>
       <button onClick={() => sendTx('deposit')}>
-        💸 1 wei を預ける
+        💸 預ける
       </button>
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
-        💰 1 wei を引き出す
+        💰 受取り
       </button>
 
       {(txHash || minikitResult) && (
