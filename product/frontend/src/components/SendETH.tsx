@@ -119,7 +119,7 @@ const SendETH = () => {
     try {
       const response = await fetch(query)
       const data = await response.json()
-      debug(`🔍 txHash取得$:{data.transactionHash}`, data.transactionHash)
+      debug(`🔍 txHash取得:${data.transactionHash}`, data.transactionHash)
       setTxHash(data.transactionHash)
     } catch (error) {
       debug(`❌ txHash取得失敗:${query}`, error)
