@@ -87,33 +87,6 @@ const SendETH = () => {
     }
   }
 
-  // useEffect(() => {
-  //   if (!transactionId) return
-  //   const interval = setInterval(async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `https://developer.worldcoin.org/api/v2/minikit/transaction/${transactionId}?app_id=${import.meta.env.VITE_APP_ID}&type=transaction`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${import.meta.env.VITE_DEV_PORTAL_API_KEY}`,
-  //           },
-  //         }
-  //       )
-  //       const data = await res.json()
-  //       if (data.transactionHash && data.transactionStatus !== 'failed') {
-  //         setTxHash(data.transactionHash)
-  //         debug(`🔍 TxHash取得完了`, data.transactionHash)
-  //         clearInterval(interval)
-  //       } else {
-  //         debug(`⏳ Tx確認中...`)
-  //       }
-  //     } catch (err) {
-  //       debug(`❌ Tx取得失敗`, err)
-  //     }
-  //   }, 3000)
-  //   return () => clearInterval(interval)
-  // }, [transactionId])
-
   const fetchTransactionHash = async (txId: string) => {
     const query = `https://developer.worldcoin.org/api/v2/minikit/transaction/${txId}?app_id=${APP_ID}&type=transaction`
     try {
@@ -131,14 +104,24 @@ const SendETH = () => {
       fetchTransactionHash(transactionId)
     }
   }, [transactionId])
-
   return (
     <div>
-      <button onClick={() => sendTx('deposit')}>💸 預ける</button>
+      <button onClick={() => sendTx('deposit')}>💸 Send</button>
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
-        💰 受取り
+        💰 Receive
       </button>
-
+      {transactionId && MiniKit.user.walletAddress && (
+        <p>
+          Check wallet by Blockscout:{' '}
+          <a
+            href={`https://worldchain-mainnet.explorer.blockscout.com/address/${MiniKit.user.walletAddress}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            https://worldchain-mainnet.explorer.blockscout.com/address/{MiniKit.user.walletAddress}
+          </a>
+        </p>
+      )}
       {txHash && (
         <p>
           TxHash:{' '}
@@ -160,7 +143,7 @@ const SendETH = () => {
           overflowY: 'auto',
         }}
       >
-        {log || '📭 ログはここに表示されます'}
+        {log || '📭 Log is here'}
       </pre>
     </div>
   )
