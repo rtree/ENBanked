@@ -9,7 +9,7 @@ const App = () => {
 
   return (
       <div>
-        <h1>World Mini App</h1>
+        <h1>ENBanked</h1>
         <SendETH />
       </div>
   )

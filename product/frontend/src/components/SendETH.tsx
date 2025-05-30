@@ -82,7 +82,6 @@ const SendETH = () => {
 
   return (
     <div>
-      <h2>VaultETH Mainnet</h2>
       <button onClick={() => sendTx('deposit')}>
         💸 1 wei を預ける
       </button>
