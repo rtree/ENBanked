@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@worldcoin/minikit-react": "^1.9.5",
+		"viem": "^2.30.5"
+	}
+}
