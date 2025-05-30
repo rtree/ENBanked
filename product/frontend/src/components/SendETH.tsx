@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 
+const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
+
 const vaultAbi = [
   {
     name: 'deposit',
@@ -113,7 +115,7 @@ const SendETH = () => {
   // }, [transactionId])
 
   const fetchTransactionHash = async (txId: string) => {
-    const query = `https://developer.worldcoin.org/api/v2/minikit/transaction/${txId}?app_id=${import.meta.env.WORLD_APP_ID}&type=transaction`
+    const query = `https://developer.worldcoin.org/api/v2/minikit/transaction/${txId}?app_id=${APP_ID}&type=transaction`
     try {
       const response = await fetch(query)
       const data = await response.json()
