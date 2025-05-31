@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useTransactionPopup } from '@blockscout/app-sdk'
-const { openPopup } = useTransactionPopup()
-
 
 const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
 
@@ -47,17 +45,6 @@ const SendETH = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [log, setLog] = useState('')
-
-  const showHistory = () => {
-    if (walletAddress) {
-      openPopup({
-        chainId: '480',
-        address: walletAddress,
-      })
-    } else {
-      debug('⚠️ walletAddress未取得のため履歴ポップアップを表示できません')
-    }
-  }
 
   const debug = (label: string, data?: any) => {
     const time = new Date().toISOString()
@@ -150,17 +137,6 @@ const SendETH = () => {
           </a>
         </p>
           )}
-
-
-{walletAddress && (
-  <div>
-    <button onClick={showHistory}>
-      🧾 View Wallet Transactions (Blockscout)
-    </button>
-  </div>
-)}
-
-
       {txHash && (
         <p>
           TxHash:{' '}
