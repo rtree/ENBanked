@@ -23,13 +23,13 @@ const TREE_DEPTH = 3;
 // ZERO_HASHES[1] → 2 段目 …
 // ------------------------------------------------
 const ZERO_HASHES: bigint[] = (() => {
-  const hashes: bigint[] = [];
-  let cur = 0n;
-  for (let i = 0; i < TREE_DEPTH; i++) {
-    cur = poseidon2([cur, cur]);
-    hashes.push(cur);
+  const elems: bigint[] = [0n];   // L0: raw 0
+  let z = 0n;
+  for (let i = 1; i < TREE_DEPTH; i++) {
+    z = poseidon2([z, z]);        // ハッシュを階段状に計算
+    elems.push(z);                // L1, L2, ...
   }
-  return hashes;
+  return elems;                   // 例: [0, h1, h2]
 })();
 
 // ------------------------------------------------
