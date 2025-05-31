@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 // import SendETH from './components/SendETH'
-import SendETHCodeTrue from './components/SendETHCode'
+import SendETHCodeTrue from './components/SendETHCodeTrue'
 import ClaimETHCode from './components/ClaimETHCode'
 import { NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'

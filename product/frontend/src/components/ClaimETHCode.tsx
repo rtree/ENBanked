@@ -4,7 +4,7 @@ import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 
 const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
-const contractAddress = '0xA55b1bBa54B2d9F31f6B5a83BA2eDAc5320D0a22'
+const contractAddress = '0x78242F5BF2b44CcedCb601FF81cF2743AE4f9341'
 
 const vaultAbi = [
   {

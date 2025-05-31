@@ -3,7 +3,7 @@ import { MiniKit } from '@worldcoin/minikit-js'
 import { useTransactionPopup, TransactionPopupProvider } from '@blockscout/app-sdk'
 
 const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
-const contractAddress = '0x76D72a4bf89Bb2327759826046FabE9BDA884E8B'
+const contractAddress = '0x78242F5BF2b44CcedCb601FF81cF2743AE4f9341'
 
 const vaultAbi = [
   {

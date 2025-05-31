@@ -1,11 +1,12 @@
 // SendETHCode.tsx
 import { useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
-import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
+import { useNotification, NotificationProvider, TransactionPopupProvider } from 
+'@blockscout/app-sdk'
 import QRCodeGenerator from './QRCodeGenerator'
 
 const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
-const contractAddress = '0xA55b1bBa54B2d9F31f6B5a83BA2eDAc5320D0a22'
+const contractAddress = '0x78242F5BF2b44CcedCb601FF81cF2743AE4f9341'
 
 const vaultAbi = [
   {
@@ -55,7 +56,7 @@ const vaultAbi = [
   },
 ]
 
-const SendETHCode = () => {
+const SendETHCodeTrue = () => {
   const [code, setCode] = useState<number | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [transactionId, setTransactionId] = useState<string | null>(null)
@@ -155,7 +156,7 @@ const SendETHCode = () => {
 const WrappedSendETHCode = () => (
   <NotificationProvider>
     <TransactionPopupProvider>
-      <SendETHCode />
+      <SendETHCodeTrue />
     </TransactionPopupProvider>
   </NotificationProvider>
 )
