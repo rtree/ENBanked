@@ -7,16 +7,15 @@ import { generateProofRaw } from './generateProof';
 import type { ProofInput } from './generateProof';
 import type { LogFn } from '../utils/logger';
 
-/* WorkerArgs 型を定義 */
 type WorkerArgs = {
-  note: { n: string; s: string; idx: number };  // noteB64 をデコードして得たオブジェクト
-  rootHex: string;                             // rootHex を文字列として受け取る
-  log: LogFn;                                  // log は進捗を表示する関数
+  noteB64: string;
+  rootHex: string;
+  log: LogFn;
 };
 
 expose({
-  generate: ({ note, rootHex, log }: WorkerArgs) => 
-    generateProofRaw(note, rootHex, log),
+  generate: ({ noteB64, rootHex, log }: WorkerArgs) =>
+    generateProofRaw(noteB64, rootHex, log),
 });
 
 /* Worker 内エラーを UI へ転送 */
