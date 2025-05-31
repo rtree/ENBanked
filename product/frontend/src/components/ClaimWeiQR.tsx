@@ -102,7 +102,7 @@ export default function ClaimWeiQR() {
         leaves,         // leaves
         leafIndex,      // leafIndex
         logLine         // log function
-      );  
+      );
       logLine(JSON.stringify(proof, null, 2));
       logLine('🔐 Proof done');
     } catch (e: any) {
