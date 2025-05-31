@@ -95,10 +95,20 @@ const SendETHCode = () => {
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
-      {code !== null && (
+      {code !== null && walletAddress &&(
         <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
-
+      <p>
+        Check your wallet by Blockscout:<br />
+        {' wallet:'}
+        <a
+          href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
+        </a>
+      </p>
       <pre
         style={{
           backgroundColor: '#111',
