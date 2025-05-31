@@ -26,9 +26,9 @@ const getLeaf          = (i: number) => read('leaves', [i]) as Promise<string>;
 const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean>;
 
 export default function ClaimWeiQR() {
-  const [noteB64, setNote] = useState<string | null>(null);
-  const [log, setLog]      = useState('📭 log here');
-  const logLine            = makeLogger((l) => setLog((p) => p + '\n' + l));
+  const [noteB64, setNote]      = useState<string | null>(null);
+  const [log, setLog]           = useState('📭 log here');
+  const logLine                 = makeLogger((l) => setLog((p) => p + '\n' + l));
 
   /* URL から note を取得 */
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function ClaimWeiQR() {
     /* 必要データを並列取得 */
     const [root, leaves] = await Promise.all([
       getCurrentRoot(),
-      Promise.all([...Array(8)].map((_, i) => getLeaf(i))),
+      Promise.all([...Array(8)].map((_, i) => getLeaf(i).then((l) => String(l)))),  // 文字列化
     ]);
 
     logLine('currentRoot =', root);
