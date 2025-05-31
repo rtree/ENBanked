@@ -1,5 +1,5 @@
 // SendETHCode.tsx
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 import { QRCodeSVG } from 'qrcode.react'
@@ -17,7 +17,7 @@ const vaultAbi = [
   {
     name: 'withdraw',
     inputs: [
-        {
+      {
         internalType: 'uint16',
         name: 'code',
         type: 'uint16',
@@ -35,7 +35,6 @@ const SendETHCode = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [log, setLog] = useState('')
-  const [txSucceeded, setTxSucceeded] = useState(false)
   const { openTxToast } = useNotification()
 
   const debug = (label: string, data?: any) => {
@@ -57,10 +56,9 @@ const SendETHCode = () => {
       return
     }
 
-    const generatedCode = generateCode()
-    setTxSucceeded(false)
-
     try {
+      const generatedCode = generateCode()
+
       const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
@@ -68,7 +66,7 @@ const SendETHCode = () => {
             abi: vaultAbi,
             functionName: 'deposit',
             args: [],
-            value: '0x1',
+            value: '1', // corrected from '0x1' to '1'
           },
         ],
       })
@@ -79,9 +77,8 @@ const SendETHCode = () => {
         setTransactionId(finalPayload.transaction_id)
         setWalletAddress(finalPayload.from)
         setTxHash(null)
-        setTxSucceeded(true)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
-        // await openTxToast('480', finalPayload.transaction_id)
+        //await openTxToast('480', finalPayload.transaction_hash)
       } else {
         debug('❌ トランザクション送信失敗', finalPayload)
       }
@@ -98,7 +95,7 @@ const SendETHCode = () => {
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
-      {txSucceeded && code !== null && (
+      {transactionId && code !== null && (
         <div style={{ marginTop: '1em' }}>
           <p>コード: {code.toString().padStart(4, '0')}</p>
           <QRCodeSVG
