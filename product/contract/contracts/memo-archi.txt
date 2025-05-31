@@ -50,3 +50,191 @@ snarkjs zkey beacon  withdraw_0000.zkey withdraw_final.zkey \
         0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 10
 snarkjs zkey export solidityverifier withdraw_final.zkey ../contracts/Verifier.sol
 cd ..
+
+
+
+=========================
+
+npm init -y
+npm i -D hardhat @nomicfoundation/hardhat-toolbox          # Hardhat/ethers
+npm i poseidon-solidity                                     # Poseidon in Solidity
+npm i -g snarkjs                                            # 証明ツール（CLI）
+Hardhat 初期化
+
+bash
+コピーする
+編集する
+npx hardhat                         # → “Create a JS project” を選択
+1. Circom 回路を置く
+circuits/withdraw.circom
+
+circom
+コピーする
+編集する
+pragma circom 2.0.0;
+include "circomlib/circuits/poseidon.circom";
+
+template Withdraw() {
+  signal input n;                        // nullifier     (private)
+  signal input s;                        // secret        (private)
+  signal input pathElements[3];          // Merkle 隣接   (private)
+  signal input pathIndices[3];           // 0 or 1        (private)
+  signal input root;                     // MerkleRoot    (public)
+  signal output nHash;                   // nullifierHash (public)
+
+  component h1 = Poseidon(2);            // commitment = H(n,s)
+  h1.inputs[0] <== n; h1.inputs[1] <== s;
+  var leaf = h1.out;
+
+  var cur = leaf;
+  for (var i=0; i<3; i++) {
+    component h = Poseidon(2);
+    h.inputs[0] <== pathIndices[i] == 0 ? cur            : pathElements[i];
+    h.inputs[1] <== pathIndices[i] == 0 ? pathElements[i]: cur;
+    cur <== h.out;
+  }
+  cur === root;                          // Merkle 検証
+
+  component h2 = Poseidon(1);            // nHash = H(n)
+  h2.inputs[0] <== n;
+  nHash <== h2.out;
+}
+component main { public [root, nHash] } = Withdraw();
+2. 回路を R1CS/WASM へコンパイル
+bash
+コピーする
+編集する
+circom circuits/withdraw.circom --r1cs --wasm -o build
+生成物
+
+bash
+コピーする
+編集する
+build/withdraw.r1cs      ← 制約システム
+build/withdraw_js/       ← witness 生成用 wasm & js
+3. Powers-of-Tau (Phase-1) ファイルを用意
+bash
+コピーする
+編集する
+# 57 MB 程度
+curl -L https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_12.ptau \
+     -o build/pot12_final.ptau
+4. Groth16 セットアップ ⇒ zkey & Verifier.sol
+bash
+コピーする
+編集する
+cd build
+snarkjs zkey new   withdraw.r1cs  pot12_final.ptau  withdraw_0000.zkey
+
+snarkjs zkey beacon withdraw_0000.zkey withdraw_final.zkey \
+  0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 10
+
+snarkjs zkey export solidityverifier withdraw_final.zkey \
+  ../contracts/Verifier.sol
+cd ..
+withdraw_final.zkey … 証明生成/検証キー
+
+contracts/Verifier.sol … Solidity 検証コントラクト
+
+5. Vault コントラクトを作成
+contracts/VaultZkWei.sol
+
+solidity
+コピーする
+編集する
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "poseidon-solidity/PoseidonT3.sol";
+import "./Verifier.sol";
+
+contract VaultZkWei {
+    uint256 public constant AMOUNT = 1;   // 1 wei
+    PoseidonT3 poseidon = new PoseidonT3();
+
+    bytes32[8] public leaves;   uint8 public nextIdx;
+    bytes32 public currentRoot;
+    mapping(bytes32=>bool) public nullifierUsed;
+
+    event Deposited(bytes32 commitment,uint8 idx,bytes32 root);
+    event Withdrawn(address to,bytes32 nullifierHash);
+
+    /*---- deposit ----*/
+    function deposit(bytes32 commitment) external payable {
+        require(msg.value==AMOUNT,"need 1 wei");
+        require(nextIdx<8,"tree full");
+
+        leaves[nextIdx]=commitment;
+        _recalcRoot();
+        emit Deposited(commitment,nextIdx,currentRoot);
+        nextIdx++;
+    }
+
+    /*---- withdraw ----*/
+    function withdraw(
+        uint256[2] calldata a,
+        uint256[2][2] calldata b,
+        uint256[2] calldata c,
+        uint256 nullifierHash,
+        uint256 root,
+        address payable to
+    ) external {
+        require(root==uint256(currentRoot),"bad root");
+        bytes32 nh=bytes32(nullifierHash);
+        require(!nullifierUsed[nh],"spent");
+
+        require(Verifier.verifyProof(a,b,c,[root,nullifierHash]),"bad proof");
+        nullifierUsed[nh]=true;
+        (bool ok,) = to.call{value:AMOUNT}("");
+        require(ok,"transfer fail");
+        emit Withdrawn(to,nh);
+    }
+
+    /*---- internal ----*/
+    function _recalcRoot() internal {
+        bytes32[8] memory l0=leaves;
+        bytes32[4] memory l1;
+        bytes32[2] memory l2;
+        for(uint8 i;i<4;i++) l1[i]=_H(l0[2*i],l0[2*i+1]);
+        for(uint8 i;i<2;i++) l2[i]=_H(l1[2*i],l1[2*i+1]);
+        currentRoot=_H(l2[0],l2[1]);
+    }
+    function _H(bytes32 a,bytes32 b) internal view returns(bytes32){
+        return bytes32(poseidon.hash([uint256(a),uint256(b)]));
+    }
+    receive() external payable {}
+}
+6. Hardhat でコンパイル
+bash
+コピーする
+編集する
+npx hardhat compile
+7. テストを書く（例）
+test/flow.ts
+
+ts
+コピーする
+編集する
+import { ethers } from 'hardhat';
+import { poseidon } from 'poseidon-lite';
+
+describe('VaultZkWei demo', ()=>{
+  it('deposit & withdraw 1 wei', async ()=>{
+    const [owner,worker] = await ethers.getSigners();
+    const Vault = await ethers.getContractFactory('VaultZkWei');
+    const vault = await Vault.deploy();
+
+    /* deposit */
+    const nullifier = ethers.randomBytes(31);
+    const secret    = ethers.randomBytes(31);
+    const commBn= poseidon([BigInt(nullifier),BigInt(secret)]);
+    const commitment = ethers.hexZeroPad('0x'+commBn.toString(16),32);
+    await vault.deposit(commitment,{value:1});
+
+    /* ここで witness & proof を JS 側で生成 …省略 */
+
+    /* withdraw (ダミー) */
+    // await vault.withdraw(a,b,c,nullifierHash,root,worker.address);
+
+  });
+});
