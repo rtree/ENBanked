@@ -37,9 +37,11 @@ export async function generateProofRaw(
   rootHex: string,
   log: (msg: string) => void = () => {}
 ) {
+  if (!noteB64) throw new Error('noteB64 is undefined');
+
   log('parse note');
   const decoded = base64urlToBase64(noteB64);
-  const note = JSON.parse(atob(decoded)); // { n, s, idx }
+  const note = JSON.parse(atob(decoded));
 
   if (note.idx !== 0) throw new Error('idx≠0 未対応');
 

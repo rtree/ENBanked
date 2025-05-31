@@ -62,6 +62,7 @@ export default function ClaimWeiQR() {
     /* ---------- 証明生成 ---------- */
     let proof;
     try {
+      logLine('💬 generateProof args:', JSON.stringify({ noteB64, rootHex: root, idx: idxFromNote, leaves }));
       proof = await generateProof(
         { noteB64, rootHex: root, idx: idxFromNote, leaves },
         logLine // ← Worker に proxy され進捗転送
