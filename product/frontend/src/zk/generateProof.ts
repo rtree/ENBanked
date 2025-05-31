@@ -7,14 +7,15 @@ import wasmUrl from './withdraw_js/withdraw.wasm?url';
 import zkeyUrl from './withdraw_final.zkey?url';
 
 export type ProofInput = {
-  noteB64: string;
-  rootHex: string;
-  idx: number;
-  leaves: string[];
+  noteB64: string;  // base64 文字列 (note)
+  rootHex: string;  // currentRoot (0x...32byte)
+  idx: number;      // leaf index (現状 idx=0 前提)
+  leaves: string[]; // 先頭 8 枚の葉 (将来の動的パス生成用)
 };
 
-const TREE_DEPTH = 3;
+const TREE_DEPTH = 3;  // ← 深さ3固定
 
+/** 0, Poseidon(0,0), Poseidon(Poseidon(0,0), Poseidon(0,0)) */
 const ZERO_HASHES: bigint[] = (() => {
   const hs: bigint[] = [0n];
   let cur = 0n;
@@ -25,6 +26,7 @@ const ZERO_HASHES: bigint[] = (() => {
   return hs;
 })();
 
+/** base64url を base64 に変換する */
 function base64urlToBase64(b64url: string): string {
   return b64url
     .replace(/-/g, '+')
@@ -32,6 +34,7 @@ function base64urlToBase64(b64url: string): string {
     .padEnd(Math.ceil(b64url.length / 4) * 4, '=');
 }
 
+/** 証明を生成 */
 export async function generateProofRaw(
   noteB64: string,
   rootHex: string,
@@ -40,15 +43,17 @@ export async function generateProofRaw(
 ) {
   log('parse note');
 
-  const note = JSON.parse(atob(base64urlToBase64(noteB64))); // 変換付きにすること！
+  // note を base64url → base64 に変換してから JSON 解析
+  const note = JSON.parse(atob(base64urlToBase64(noteB64)));
   if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
+  // 入力データ作成
   const input = {
-    n:    BigInt('0x' + note.n),
-    s:    BigInt('0x' + note.s),
+    n: BigInt('0x' + note.n),
+    s: BigInt('0x' + note.s),
     root: BigInt(rootHex),
     pathElements: ZERO_HASHES,
-    pathIndices:  [0, 0, 0],
+    pathIndices: [0, 0, 0],  // 左枝固定
   };
 
   log('fullProve start');
@@ -63,8 +68,8 @@ export async function generateProofRaw(
     ],
     c: proof.pi_c.slice(0, 2).map(BigInt),
     inputs: [
-      publicSignals[0],
-      rootHex,
+      publicSignals[0],  // nullifierHash
+      rootHex,           // root
     ] as [string, string],
   };
 }
