@@ -106,8 +106,9 @@ try {
           pathIndices[i] === 0 ? pathElements[i] : cur,
           pathIndices[i] === 1 ? cur : pathElements[i],
         ])
+            logLine('testRooooot', cur.toString(16), cur.toString());
+
     }
-    logLine('testRooooot', cur.toString(16), cur.toString());
 function _H(a:string,b:string){
   return poseidon([a, b]);
 }
