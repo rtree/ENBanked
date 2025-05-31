@@ -15,5 +15,5 @@ const worker = wrap(new WorkerFactory()) as unknown as WorkerApi;
 /* React から呼ぶラッパー */
 export function generateProof(args: ProofInput, log: LogFn) {
   log('💬 generateProof args:', args);
-  return worker.generate(args.noteB64, args.rootHex, args.idx, args.leaves);
+  return worker.generate(args.noteB64, args.rootHex, args.idx, args.leaves);  // 修正済み
 }

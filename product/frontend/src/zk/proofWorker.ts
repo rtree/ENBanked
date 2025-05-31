@@ -12,8 +12,11 @@ type WorkerArgs = ProofInput & { log: LogFn };
 /*――――――――――――――――――――*/
 
 expose({
-  generate: ({ noteB64, rootHex, idx, leaves, log }: WorkerArgs) => 
-    generateProofRaw(noteB64, rootHex, log),  // log を渡して他の引数を調整
+  generate: ({ noteB64, rootHex, idx, leaves, log }: WorkerArgs) => {
+    // base64 をデコードして { n, s, idx } オブジェクトに変換
+    const note = JSON.parse(atob(noteB64));  // noteB64 をデコードして { n, s, idx }
+    return generateProofRaw(note, rootHex, log);  // { n, s, idx } を渡す
+  }
 });
 
 /* Worker 内エラーを UI へ転送 */

@@ -7,7 +7,7 @@ import wasmUrl  from './withdraw_js/withdraw.wasm?url';
 import zkeyUrl  from './withdraw_final.zkey?url';
 
 export type ProofInput = {
-  noteB64: string;    // QR に入っている base64 文字列
+  noteB64: string;    // base64 文字列を渡す
   rootHex: string;    // currentRoot (0x…32byte)
   idx:     number;    // leaf index (現状 idx=0 前提でも番号は持たせる)
   leaves:  string[];  // 先頭 8 枚の葉 (将来の動的パス生成用)
@@ -28,16 +28,13 @@ const ZERO_HASHES: bigint[] = (() => {
 
 /* ---------- 抜本的に pathElements / pathIndices は「idx=0 前提」 ---------- */
 export async function generateProofRaw(
-  noteB64: string,
+  note: { n: string; s: string; idx: number },  // 引数として渡される
   rootHex: string,
   log: (msg: string) => void = () => {}
 ) {
-  log('parse note');
+  log('using parsed note');
   
-  // ここで一度だけ atob() を実行し、base64 をデコード
-  const note = JSON.parse(atob(noteB64));          // { n, s, idx }
-  
-  if (note.idx !== 0) throw new Error('idx≠0 未対応');
+  if (note.idx !== 0) throw new Error('idx≠0 未対応');  // idx≠0 の場合にエラーを出す
 
   const input = {
     n:    BigInt('0x' + note.n),
