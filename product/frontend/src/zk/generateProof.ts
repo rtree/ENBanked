@@ -18,12 +18,14 @@ export async function generateProofRaw(
 
   const nullifierHash = poseidon([BigInt('0x' + note.n)]).toString();
 
+  const TREE_DEPTH = 3; // ← withdraw.circom の配列長に合わせる
+
   const input = {
     n: BigInt('0x' + note.n),
     s: BigInt('0x' + note.s),
     root: BigInt(rootHex),
-    pathElements: Array(10).fill(0n), // idx=0 用。深さ3なら 3 にする
-    pathIndices: Array(10).fill(0),
+    pathElements: Array(TREE_DEPTH).fill(0n),
+    pathIndices: Array(TREE_DEPTH).fill(0),
   };
 
   log('fullProve start');
