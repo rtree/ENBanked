@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { MiniKit } from '@worldcoin/minikit-js';
 import { QRCodeSVG } from 'qrcode.react';
 import { vaultAbi } from '../abi/vaultZkWei';
-import { poseidon1 as poseidon } from 'poseidon-lite';
+import { poseidon2 as poseidon } from 'poseidon-lite';
 import { VAULT_ADDRESS, APP_ID, AMOUNT_HEX } from '../config';
 import { hexlify, randomBytes, zeroPadValue } from 'ethers';
 
@@ -86,13 +86,13 @@ export default function SendWeiQR() {
       };
       setNote(noteInfo);
       setTxid(finalPayload.transaction_id);
-      logLine('✅ トランザクション成功! TxID=', finalPayload.transaction_id);
+      logLine('✅ Successfully done TxID=', finalPayload.transaction_id);
       logLine('✅ QR Note =', noteInfo);
     } catch (err) {
       if (err instanceof Error) {
-        logLine('💥 例外発生', err.message);
+        logLine('💥 Exception', err.message);
       } else {
-        logLine('💥 例外発生', JSON.stringify(err));
+        logLine('💥 Exception', JSON.stringify(err));
       }
     } finally {
       setWaiting(false);
