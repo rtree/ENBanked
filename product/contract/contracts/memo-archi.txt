@@ -1,0 +1,38 @@
+# 1. 依存を入れる
+npm i hardhat poseidon-solidity snarkyjs poseidon-lite
+
+# 2. circom 不要。代わりに ./contracts/VaultZkWei.sol と
+#    ./contracts/Verifier.sol (snarkjs 生成) を置く
+#    -> snarkjs groth16 setup / export solidityverifier で生成
+
+# 3. npx hardhat compile
+
+# 4. npx hardhat test         # ↑の test/flow.ts が走る
+#    └─ console に QR(base64) が出る
+
+# 5. 実運用時:
+#    雇い主 MiniApp:
+#      - nullifier/secret 生成 → commitment 作成 → deposit Tx 送る
+#      - QR(base64) 生成・表示
+#    受取側 MiniApp:
+#      - カメラで QR 読み取り
+#      - withdraw.ts ワーカーに渡して証明生成
+#      - vault.withdraw() を送信
+
+
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+
+my-zk-vault/           ← プロジェクトのルート
+├─ contracts/          ← Solidity ファイル置き場
+│   ├─ VaultZkWei.sol
+│   └─ Verifier.sol    ← snarkjs が生成
+├─ scripts/            ← デプロイ or 独自スクリプト
+├─ test/               ← Hardhat テスト
+│   └─ flow.ts
+├─ circuits/           ← （SnarkyJS 専用ファイル置き場など）
+│   └─ withdraw.circuit.ts
+├─ front/              ← React / MiniApp フロント
+│   ├─ src/…
+│   └─ package.json
+├─ hardhat.config.ts
+└─ package.json
