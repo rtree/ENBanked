@@ -98,7 +98,7 @@ const ClaimETHCode = () => {
       <button onClick={sendWithdraw} disabled={code === null}>💰 Claim</button>
       {code !== null && <p>使用コード: {code.toString().padStart(4, '0')}</p>}
       {walletAddress && (
-        <p>
+        <p> 
           {' wallet:'}
           <a
             href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}

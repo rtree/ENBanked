@@ -87,8 +87,9 @@ const SendETHCode = () => {
     }
   }
 
+
   const claimUrl = code !== null
-    ? `https://worldcoin.org/mini-app?app_id=app_c22b23e8101db637591586c4a8ca02b1&path=/claim?code=${code}`
+    ? `https://worldcoin.org/mini-app?app_id=...&path=${encodeURIComponent(`/claim?code=${code}`)}`
     : ''
 
   return (
