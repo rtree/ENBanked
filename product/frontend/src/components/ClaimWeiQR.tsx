@@ -98,7 +98,7 @@ export default function ClaimWeiQR() {
     logLine('🛣️ pathIndices =', pathIndices);
     logLine('🛣️ pathElements =', pathElements);
 
-
+try {
     var cur = leafBig;
 
     for (var i = 0; i < 3; i++) {
@@ -108,7 +108,9 @@ export default function ClaimWeiQR() {
         ])
     }
     logLine('testRooooot', cur);
-
+  } catch(e:any){
+      return logLine('❌ Merkle path error:', e.stack, e.message);
+}
     /* 4) 証明生成 -------------------------------------------------- */
     let proof;
     try {
