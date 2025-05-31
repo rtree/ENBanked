@@ -107,7 +107,7 @@ try {
           pathIndices[i] === 1 ? cur : pathElements[i],
         ])
     }
-    logLine('testRooooot', cur);
+    logLine('testRooooot', cur.toString(16), cur.toString());
   } catch(e:any){
       return logLine('❌ Merkle path error:', e.stack, e.message);
 }
