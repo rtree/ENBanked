@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { MiniKit } from '@worldcoin/minikit-js';
 import { QRCodeSVG } from 'qrcode.react';
-import { vaultAbi } from '../abi/vaultZkWei';
+import { vaultDepositAbi as vaultAbi  } from '../abi/vaultZkWei';
 import { poseidon2 as poseidon } from 'poseidon-lite';
 import { VAULT_ADDRESS, APP_ID, AMOUNT_HEX } from '../config';
 import { toBeHex, hexlify, randomBytes, zeroPadValue } from 'ethers';

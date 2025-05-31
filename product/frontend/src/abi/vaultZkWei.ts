@@ -1,4 +1,35 @@
-export const vaultAbi = [
+//PRJROOT/product/frontend/src/abi/vaultZkWei.ts
+
+/* ───────── Deposit 用（MiniKit に渡すのはこれだけ） ───────── */
+export const vaultDepositAbi = [
+  {
+    name: 'deposit',
+    inputs: [{ name: 'commitment', type: 'bytes32' }],
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function'
+  }
+] as const;
+
+/* ───────── Withdraw 用 ───────── */
+export const vaultWithdrawAbi = [
+  {
+    name: 'withdraw',
+    inputs: [
+      { name: 'a',  type: 'uint256[2]' },
+      { name: 'b',  type: 'uint256[2][2]' },
+      { name: 'c',  type: 'uint256[2]' },
+      { name: 'nullifierHash', type: 'uint256' },
+      { name: 'root',          type: 'uint256' },
+      { name: 'to',            type: 'address' }      // ← payable を外す
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+] as const;
+
+export const vaultFullAbi = [
   /*----- Constructor -----*/
   {
     inputs: [{ internalType: 'address', name: 'verifierAddress', type: 'address' }],

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MiniKit } from '@worldcoin/minikit-js';
-import { vaultAbi } from '../abi/vaultZkWei';
+import { vaultWithdrawAbi as vaultAbi } from '../abi/vaultZkWei';
 import { VAULT_ADDRESS } from '../config';
 import { hexlify, randomBytes, zeroPadValue } from 'ethers';
 
