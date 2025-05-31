@@ -7,7 +7,7 @@ interface QRCodeGeneratorProps {
 
 const QRCodeGenerator = ({ code, claimUrl }: QRCodeGeneratorProps) => {
   return (
-    <div style={{ marginTop: '1em' }}>
+    <div style={{ margin: '1em', backgroundColor: 'white' }}>
       <p>コード: {code.toString().padStart(4, '0')}</p>
       <QRCodeSVG
         value={claimUrl}
