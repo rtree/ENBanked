@@ -25,13 +25,22 @@ const ZERO_HASHES: bigint[] = (() => {
   return hs;
 })();
 
+function base64urlToBase64(b64url: string): string {
+  return b64url
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(b64url.length / 4) * 4, '=');
+}
+
 export async function generateProofRaw(
   noteB64: string,
   rootHex: string,
   log: (msg: string) => void = () => {}
 ) {
   log('parse note');
-  const note = JSON.parse(atob(noteB64)); // { n, s, idx }
+  const decoded = base64urlToBase64(noteB64);
+  const note = JSON.parse(atob(decoded)); // { n, s, idx }
+
   if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   const input = {
