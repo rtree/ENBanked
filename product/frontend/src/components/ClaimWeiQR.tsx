@@ -117,6 +117,8 @@ function _H(a:string,b:string){
         for (let i=0; i < 4; i++) l1[i] = _H(l0[2 * i], l0[2 * i + 1]);
         for (let i=0; i < 2; i++) l2[i] = _H(l1[2 * i], l1[2 * i + 1]);
         const currentRoot = _H(l2[0], l2[1]);
+        logLine('level1', l1.map(x => x.toString(16)).join(', '));
+        logLine('level2', l2.map(x => x.toString(16)).join(', '));
         logLine('currentRoot', currentRoot.toString(16), currentRoot.toString());
   } catch(e:any){
       return logLine('❌ Merkle path error:', e.stack, e.message);
