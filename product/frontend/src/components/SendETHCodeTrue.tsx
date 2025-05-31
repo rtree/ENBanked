@@ -120,7 +120,7 @@ const SendETHCodeTrue = () => {
   return (
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
-
+    
       {code !== null && walletAddress && (
         <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
