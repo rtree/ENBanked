@@ -23,7 +23,12 @@ const read = async (fn: string, args: any[] = []) => {
 const getCurrentRoot = () => read('currentRoot') as Promise<string>;
 const getNextIdx = async () => Number(await read('nextIdx'));
 const getLeaf = (i: number) => read('leaves', [i]) as Promise<string>;
-const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean>;
+const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean];
+
+/* base64url → base64 変換関数 */
+function base64urlToBase64(base64url: string): string {
+  return base64url.replace(/-/g, '+').replace(/_/g, '/');
+}
 
 export default function ClaimWeiQR() {
   const [noteB64, setNote] = useState<string | null>(null);
@@ -45,27 +50,33 @@ export default function ClaimWeiQR() {
     if (!noteB64) return logLine('❌ note なし');
     if (!MiniKit.isInstalled()) return logLine('❌ MiniKit 未検出');
 
-    /* note 解析 (n,s,idx) */
-    const note = JSON.parse(atob(noteB64));
+    // note を解析する
+    let note;
+    try {
+      const decodedNote = atob(base64urlToBase64(noteB64)); // base64urlをbase64に変換してから
+      note = JSON.parse(decodedNote); // ここでJSONパース
+    } catch (e) {
+      return logLine('❌ note の解析に失敗:', e.message || e);
+    }
+
     const idxFromNote = Number(note.idx);
     if (Number.isNaN(idxFromNote)) return logLine('❌ note に idx 無し');
 
-    /* 必要データを並列取得 */
+    // 必要データを並列取得
     const [root, leaves] = await Promise.all([
       getCurrentRoot(),
-      Promise.all([...Array(8)].map((_, i) => getLeaf(i).then((l) => String(l)))), // 文字列化
+      Promise.all([...Array(8)].map((_, i) => getLeaf(i).then((l) => String(l)))),
     ]);
 
     logLine('currentRoot =', root);
     logLine('idx =', idxFromNote);
 
-    /* ---------- 証明生成 ---------- */
+    // 証明生成
     let proof;
     try {
-      logLine('💬 generateProof args:', JSON.stringify({ noteB64, rootHex: root, idx: idxFromNote, leaves }));
       proof = await generateProof(
         { noteB64, rootHex: root, idx: idxFromNote, leaves },
-        logLine // ← Worker に proxy され進捗転送
+        logLine // Worker に proxy され進捗転送
       );
     } catch (e: any) {
       return logLine('💥 proof error:', e.message || e);
