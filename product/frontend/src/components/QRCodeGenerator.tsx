@@ -16,7 +16,7 @@ const QRCodeGenerator = ({ code, claimUrl }: QRCodeGeneratorProps) => {
         fgColor="#111"
         bgColor="#fff"
         imageSettings={{
-          src: '/assets/ENBANKED(svg).svg',
+          src: '/assets/ENBANKED.png',
           height: 40,
           width: 40,
           excavate: true,
