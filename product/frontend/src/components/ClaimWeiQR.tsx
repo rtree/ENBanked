@@ -8,6 +8,7 @@ import { vaultFullAbi as vaultAbi } from '../abi/vaultZkWei';
 import { Interface, JsonRpcProvider, ZeroAddress } from 'ethers';
 import { generateProofRaw } from '../zk/generateProof';  // Worker 経由を排除
 import { makeLogger } from '../utils/logger';
+import { poseidon2 as poseidon } from 'poseidon-lite';
 
 const provider = new JsonRpcProvider(RPC_URL);
 const vaultIface = new Interface(vaultAbi);
@@ -55,36 +56,52 @@ export default function ClaimWeiQR() {
     try {
       const decodedNote = atob(base64urlToBase64(noteB64)); // base64urlをbase64に変換してから
       note = JSON.parse(decodedNote); // ここでJSONパース
+      logLine('🔍 Decoded note:', note);  // Note内容のログを追加
     } catch (e: unknown) {
-      // 型アサーションでエラーを Error 型にキャスト
-      const error = e as Error;  // e を Error 型にキャスト
+      const error = e as Error;
       return logLine('❌ note の解析に失敗:', error.message || error);
     }
 
     const idxFromNote = Number(note.idx);
     if (Number.isNaN(idxFromNote)) return logLine('❌ note に idx 無し');
+    logLine('🔑 note idx:', idxFromNote);
 
     // 必要データを並列取得
     const [root, leaves] = await Promise.all([
       getCurrentRoot(),
       Promise.all([...Array(8)].map((_, i) => getLeaf(i).then((l) => String(l)))),
     ]);
+    logLine('📜 currentRoot:', root);
+    logLine('🗂️ leaves[0]:', leaves[0]);
 
-    logLine('currentRoot =', root);
-    logLine('idx =', idxFromNote);
+    // Poseidonでleaf計算
+    const leaf = poseidon([BigInt(note.n), BigInt(note.s)]);
+    logLine('🔨 Poseidon leaf calculation:', leaf);
+    if (String(leaf) !== leaves[0]) {
+      logLine('❌ Leaf mismatch: Calculated leaf does not match leaves[0]');
+      return;
+    } else {
+      logLine('✅ Leaf matches leaves[0]');
+    }
 
     // 証明生成
     let proof;
     try {
+      logLine('🔄 Generating proof...');
       proof = await generateProofRaw(
         noteB64, root, leaves, logLine // 同期的に証明生成
       );
+      logLine('🔐 Proof generated successfully:', proof);
     } catch (e: any) {
       return logLine('💥 proof error:', e.message || e);
     }
     const { a, b, c, inputs } = proof;
     const [nullifierHash] = inputs;
     logLine('✅ proof OK');
+    logLine('🧾 a:', a);
+    logLine('🔢 b:', b);
+    logLine('🔑 c:', c);
+    logLine('📝 inputs:', inputs);
 
     if (await isNullifierSpent(nullifierHash))
       return logLine('❌ 既に使用済み');
@@ -101,6 +118,8 @@ export default function ClaimWeiQR() {
       root,
       MiniKit.user.walletAddress ?? ZeroAddress,
     ]);
+
+    logLine('💡 Encoded calldata:', calldata);
 
     /* 事前シミュレーション */
     try {
