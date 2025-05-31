@@ -35,6 +35,7 @@ const SendETHCode = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [log, setLog] = useState('')
+  const [txSucceeded, setTxSucceeded] = useState(false)
   const { openTxToast } = useNotification()
 
   const debug = (label: string, data?: any) => {
@@ -57,6 +58,7 @@ const SendETHCode = () => {
     }
 
     const generatedCode = generateCode()
+    setTxSucceeded(false)
 
     try {
       const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
@@ -77,8 +79,9 @@ const SendETHCode = () => {
         setTransactionId(finalPayload.transaction_id)
         setWalletAddress(finalPayload.from)
         setTxHash(null)
+        setTxSucceeded(true)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
-        // await openTxToast('480', finalPayload.transaction_hash)
+        // await openTxToast('480', finalPayload.transaction_id)
       } else {
         debug('❌ トランザクション送信失敗', finalPayload)
       }
@@ -95,7 +98,7 @@ const SendETHCode = () => {
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
-      {code !== null && (
+      {txSucceeded && code !== null && (
         <div style={{ marginTop: '1em' }}>
           <p>コード: {code.toString().padStart(4, '0')}</p>
           <QRCodeSVG
@@ -103,7 +106,8 @@ const SendETHCode = () => {
             size={200}
             level="M"
             fgColor="#111"
-            bgColor="#fff"
+            bgColor="#ffffff"
+            marginSize={4}
             imageSettings={{
               src: '/assets/ENBANKED(svg).svg',
               height: 40,
