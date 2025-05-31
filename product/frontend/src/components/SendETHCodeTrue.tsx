@@ -125,8 +125,7 @@ const SendETHCodeTrue = () => {
         <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
       <p>
-        {' Check your wallet by Blockscout:'}<img src='/assets/madewithblockscout.png'/>
-
+        {' Check your wallet by Blockscout:'}<img src="/assets/madewithblockscout.png"/><br />
         {' wallet:'}
         <a
           href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
