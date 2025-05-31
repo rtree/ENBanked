@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
-import { QRCodeSVG } from 'qrcode.react'
+import QRCodeGenerator from './QRCodeGenerator'
 
 const contractAddress = '0xd7C2a36786124738d54AdB710D59abc8d8CAca75'
 
@@ -96,27 +96,7 @@ const SendETHCode = () => {
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
       {code !== null && (
-        <div style={{ marginTop: '1em' }}>
-          <p>コード: {code.toString().padStart(4, '0')}</p>
-          <QRCodeSVG
-            value={claimUrl}
-            size={200}
-            level="M"
-            fgColor="#111"
-            bgColor="#fff"
-            imageSettings={{
-              src: '/assets/ENBANKED(svg).svg',
-              height: 40,
-              width: 40,
-              excavate: true,
-            }}
-          />
-          <p>
-            <a href={claimUrl} target="_blank" rel="noreferrer">
-              {claimUrl}
-            </a>
-          </p>
-        </div>
+        <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
 
       <pre
