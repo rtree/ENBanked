@@ -98,6 +98,20 @@ export default function ClaimWeiQR() {
     logLine('🛣️ pathIndices =', pathIndices);
     logLine('🛣️ pathElements =', pathElements);
 
+
+    var cur = leafBig;
+
+    for (var i = 0; i < 3; i++) {
+        h[i] = Poseidon(2);
+        h[i].inputs[0] <== IfElse()(pathIndices[i], pathElements[i], cur);
+        h[i].inputs[1] <== IfElse()(pathIndices[i], cur, pathElements[i]);
+        cur = poseidon([
+          pathIndices[i] === 1 ? pathElements[i] : cur,
+          pathIndices[i] === 1 ? cur : pathElements[i],
+        ])
+    }
+    logLine('testRooooot', cur);
+
     /* 4) 証明生成 -------------------------------------------------- */
     let proof;
     try {
