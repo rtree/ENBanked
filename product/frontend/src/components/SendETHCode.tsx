@@ -4,6 +4,7 @@ import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 import QRCodeGenerator from './QRCodeGenerator'
 
+const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
 const contractAddress = '0xd7C2a36786124738d54AdB710D59abc8d8CAca75'
 
 const vaultAbi = [
@@ -89,7 +90,7 @@ const SendETHCode = () => {
 
 
   const claimUrl = code !== null
-    ? `https://worldcoin.org/mini-app?app_id=...&path=${encodeURIComponent(`/claim?code=${code}`)}`
+    ? `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(`/claim?code=${code}`)}`
     : ''
 
   return (

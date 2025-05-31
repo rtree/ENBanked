@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 
+const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
 const contractAddress = '0xd7C2a36786124738d54AdB710D59abc8d8CAca75'
 
 const vaultAbi = [
