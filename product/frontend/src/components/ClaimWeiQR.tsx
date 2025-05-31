@@ -103,6 +103,7 @@ export default function ClaimWeiQR() {
         leafIndex,      // leafIndex
         logLine         // log function
       );
+      logLine(JSON.stringify(proof, null, 2));
       logLine('🔐 Proof done');
     } catch (e: any) {
       return logLine('💥 proof error:', e.message);

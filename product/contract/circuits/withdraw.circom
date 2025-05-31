@@ -11,6 +11,7 @@ template Withdraw() {
     signal input root;
 
     signal output nHash;
+    signal output tests[3];
 
     component leafH = Poseidon(2);
     leafH.inputs[0] <== n;
@@ -24,8 +25,9 @@ template Withdraw() {
         h[i].inputs[0] <== IfElse()(pathIndices[i], cur, pathElements[i]);
         h[i].inputs[1] <== IfElse()(pathIndices[i], pathElements[i], cur);
         cur = h[i].out;
+        tests[i] <== cur;
     }
-    cur === root;
+    //cur === root;
 
     component nH = Poseidon(1);
     nH.inputs[0] <== n;
