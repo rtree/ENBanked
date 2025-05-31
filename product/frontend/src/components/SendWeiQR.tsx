@@ -41,15 +41,15 @@ export default function SendWeiQR() {
 
     setWaiting(true);
     try {
-      /* 1) 秘密情報を生成 */
+      /* 1.Generating secret */
       logLine('🔑 秘密値生成中…');
       const nullifier = hexlify(randomBytes(31)); // 248-bit
       const secret = hexlify(randomBytes(31));
-      logLine('   • nullifier =', nullifier);
-      logLine('   • secret    =', secret);
+      logLine('   nullifier =', nullifier);
+      logLine('   secret    =', secret);
 
-      /* 2) commitment を計算 */
-      logLine('🔄 Poseidon( nullifier , secret ) 計算中…');
+      /* 2.commitment を計算 */
+      logLine('🔄 Poseidon( nullifier , secret ) calculating...');
       const commitmentBig = poseidon([BigInt(nullifier), BigInt(secret)]);
       const commitmentHex = zeroPadValue(
         '0x' + commitmentBig.toString(16),
@@ -89,7 +89,11 @@ export default function SendWeiQR() {
       logLine('✅ トランザクション成功! TxID=', finalPayload.transaction_id);
       logLine('✅ QR Note =', noteInfo);
     } catch (err) {
-      logLine('💥 例外発生', err);
+      if (err instanceof Error) {
+        logLine('💥 例外発生', err.message);
+      } else {
+        logLine('💥 例外発生', JSON.stringify(err));
+      }
     } finally {
       setWaiting(false);
       logLine('🔚 handleDeposit END');
