@@ -70,6 +70,41 @@
       "artifacts": [
         "VaultETH"
       ]
+    },
+    "/home/araki/ENBanked/product/contract/contracts/VaultCodeETHTrue.sol": {
+      "lastModificationDate": 1748669526328,
+      "contentHash": "3c467b716454b64c9a4b118667100be3",
+      "sourceName": "contracts/VaultCodeETHTrue.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "VaultCodeETHTrue"
+      ]
     }
   }
 }

@@ -1,5 +1,5 @@
 // SendETHCode.tsx
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 import QRCodeGenerator from './QRCodeGenerator'
@@ -10,7 +10,13 @@ const contractAddress = '0xA55b1bBa54B2d9F31f6B5a83BA2eDAc5320D0a22'
 const vaultAbi = [
   {
     name: 'deposit',
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: 'code',
+        type: 'uint16',
+      },
+    ],
     outputs: [],
     stateMutability: 'payable',
     type: 'function',
@@ -18,7 +24,7 @@ const vaultAbi = [
   {
     name: 'withdraw',
     inputs: [
-        {
+      {
         internalType: 'uint16',
         name: 'code',
         type: 'uint16',
@@ -27,6 +33,25 @@ const vaultAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint16',
+        name: 'code',
+        type: 'uint16',
+      },
+    ],
+    name: 'CodeCreated',
+    type: 'event',
   },
 ]
 
@@ -51,8 +76,6 @@ const SendETHCode = () => {
     return raw
   }
 
-  
-  
   const sendDeposit = async () => {
     if (!MiniKit.isInstalled()) {
       debug('⚠️ MiniKit未検出。WorldAppから開いてください。')
@@ -68,7 +91,7 @@ const SendETHCode = () => {
             address: contractAddress,
             abi: vaultAbi,
             functionName: 'deposit',
-            args: [],
+            args: [generatedCode],
             value: '0x1',
           },
         ],
@@ -81,7 +104,6 @@ const SendETHCode = () => {
         setWalletAddress(finalPayload.from)
         setTxHash(null)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
-        // await openTxToast('480', finalPayload.transaction_hash)
       } else {
         debug('❌ トランザクション送信失敗', finalPayload)
       }
@@ -90,16 +112,15 @@ const SendETHCode = () => {
     }
   }
 
-
   const claimUrl = code !== null
     ? `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(`/claim?code=${code}`)}`
-    : ''  
+    : ''
 
   return (
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
-      {code !== null && walletAddress &&(
+      {code !== null && walletAddress && (
         <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
       <p>
