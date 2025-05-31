@@ -1,5 +1,5 @@
 // SendETHCode.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
 import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk'
 import { QRCodeSVG } from 'qrcode.react'
@@ -17,7 +17,7 @@ const vaultAbi = [
   {
     name: 'withdraw',
     inputs: [
-      {
+        {
         internalType: 'uint16',
         name: 'code',
         type: 'uint16',
@@ -56,9 +56,9 @@ const SendETHCode = () => {
       return
     }
 
-    try {
-      const generatedCode = generateCode()
+    const generatedCode = generateCode()
 
+    try {
       const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
@@ -66,7 +66,7 @@ const SendETHCode = () => {
             abi: vaultAbi,
             functionName: 'deposit',
             args: [],
-            value: '1', // corrected from '0x1' to '1'
+            value: '0x1',
           },
         ],
       })
@@ -78,7 +78,7 @@ const SendETHCode = () => {
         setWalletAddress(finalPayload.from)
         setTxHash(null)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
-        //await openTxToast('480', finalPayload.transaction_hash)
+        // await openTxToast('480', finalPayload.transaction_hash)
       } else {
         debug('❌ トランザクション送信失敗', finalPayload)
       }
@@ -95,7 +95,7 @@ const SendETHCode = () => {
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
 
-      {transactionId && code !== null && (
+      {code !== null && (
         <div style={{ marginTop: '1em' }}>
           <p>コード: {code.toString().padStart(4, '0')}</p>
           <QRCodeSVG
@@ -103,8 +103,7 @@ const SendETHCode = () => {
             size={200}
             level="M"
             fgColor="#111"
-            bgColor="#ffffff"
-            marginSize={4}
+            bgColor="#fff"
             imageSettings={{
               src: '/assets/ENBANKED(svg).svg',
               height: 40,
