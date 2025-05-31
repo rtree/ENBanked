@@ -58,7 +58,10 @@ export default function ClaimWeiQR() {
       Promise.all([...Array(8)].map((_,i)=>getLeaf(i)))
     ]);
     logLine('📜 currentRoot =', root);
-    logLine('🗂️ leaves[0]   =', leaves[0]);
+    for(let leaf of leaves){
+ logLine('🗂️ leaves   =', leaf);
+    }
+   
 
     /* 2) leaf 再計算＆一致チェック ---------------------------------- */
     const leafBig = poseidon([BigInt('0x'+note.n), BigInt('0x'+note.s)]);
