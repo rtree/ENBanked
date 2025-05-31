@@ -120,12 +120,12 @@ const SendETHCodeTrue = () => {
   return (
     <div>
       <button onClick={sendDeposit}>💸 Send + QR発行</button>
-    
+
       {code !== null && walletAddress && (
         <QRCodeGenerator code={code} claimUrl={claimUrl} />
       )}
       <p>
-        {' Check your wallet by Blockscout:'}<img src="/assets/madewithblockscout.png"/><br />
+        {' Check your wallet by Blockscout:'}<img src="https://docs.blockscout.com/~gitbook/image?url=https%3A%2F%2F1077666658-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-Lq1XoWGmy8zggj_u2fM%252Ficon%252FyFkt6mPJJvjKiSBBOppe%252FBS_logo_slack.png%3Falt%3Dmedia%26token%3D3bbbb670-528a-4c2b-aec8-f149bd5e059f&width=16&dpr=2&quality=100&sign=393be4b0&sv=2"/><br />
         {' wallet:'}
         <a
           href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
