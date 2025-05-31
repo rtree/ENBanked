@@ -51,6 +51,8 @@ const SendETHCode = () => {
     return raw
   }
 
+  
+  
   const sendDeposit = async () => {
     if (!MiniKit.isInstalled()) {
       debug('⚠️ MiniKit未検出。WorldAppから開いてください。')
@@ -91,7 +93,7 @@ const SendETHCode = () => {
 
   const claimUrl = code !== null
     ? `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(`/claim?code=${code}`)}`
-    : ''
+    : ''  
 
   return (
     <div>
