@@ -106,7 +106,7 @@ export default function ClaimWeiQR() {
       logLine(JSON.stringify(proof, null, 2));
       logLine('🔐 Proof done');
     } catch (e: any) {
-      return logLine('💥 proof error:', e.message);
+      return logLine('💥 proof error:',  e.stack,  e.message);
     }
 
     const { a, b, c, inputs: [nullifierHash] } = proof;
