@@ -134,7 +134,7 @@ export default function SendWeiQR() {
   return (
     <div style={{ margin: '1em' }}>
       <p>✅ <b>TxID:</b> {txid}</p>
-      <p>👇 QR を労働者に渡してください</p>
+      <p>👇 QR をあてさきに渡してください</p>
       <QRCodeSVG value={claimUrl} size={180} />
       <p>
         <a href={claimUrl}>{claimUrl}</a>
