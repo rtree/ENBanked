@@ -103,8 +103,8 @@ try {
 
     for (var i = 0; i < 3; i++) {
         cur = poseidon([
-          pathIndices[i] === 1 ? pathElements[i] : cur,
-          pathIndices[i] === 1 ? cur : pathElements[i],
+          pathIndices[i] === 0 ? pathElements[i] : cur,
+          pathIndices[i] === 0 ? cur : pathElements[i],
         ])
     }
     logLine('testRooooot', cur.toString(16), cur.toString());
