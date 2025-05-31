@@ -42,6 +42,7 @@ const getTxExplorerUrl = (txHash: string) =>
 const SendETH = () => {
   const [txHash, setTxHash] = useState<string | null>(null)
   const [transactionId, setTransactionId] = useState<string | null>(null)
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [log, setLog] = useState('')
 
   const debug = (label: string, data?: any) => {
@@ -77,6 +78,7 @@ const SendETH = () => {
 
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id)
+        setWalletAddress(finalPayload.from)
         setTxHash(null)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
       } else {
@@ -99,6 +101,7 @@ const SendETH = () => {
     }
   }
 
+
   useEffect(() => {
     if (transactionId) {
       fetchTransactionHash(transactionId)
@@ -120,7 +123,7 @@ const SendETH = () => {
           >
             {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
           </a><br/>
-          {` myaddr:${MiniKit.user.walletAddress}`}
+          {` myaddr:${walletAddress}`}
         </p>
       {txHash && (
         <p>
