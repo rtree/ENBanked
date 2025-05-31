@@ -21,8 +21,8 @@ template Withdraw() {
     for (var i = 0; i < 3; i++) {
         pathIndices[i] * (pathIndices[i] - 1) === 0;
         h[i] = Poseidon(2);
-        h[i].inputs[0] <== IfElse()(pathIndices[i], pathElements[i], cur);
-        h[i].inputs[1] <== IfElse()(pathIndices[i], cur, pathElements[i]);
+        h[i].inputs[0] <== IfElse()(pathIndices[i], cur, pathElements[i]);
+        h[i].inputs[1] <== IfElse()(pathIndices[i], pathElements[i], cur);
         cur = h[i].out;
     }
     cur === root;
