@@ -63,6 +63,7 @@ export default function ClaimWeiQR() {
       Promise.all([...Array(8)].map((_,i)=>getLeaf(i)))
     ]);
     logLine('📜 currentRoot =', root);
+    logLine('📜 currentRoot =', BigInt(root).toString(10));
     for(let leaf of leaves){
  logLine('🗂️ leaves   =', leaf);
     }
