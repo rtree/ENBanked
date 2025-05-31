@@ -111,14 +111,16 @@ const SendETH = () => {
         💰 Receive
       </button>
         <p>
-          Check wallet by Blockscout:{' '}
+          Check wallet by Blockscout:<br/>
+          {' contract:'}
           <a
             href={`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
             target="_blank"
             rel="noreferrer"
           >
             {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
-          </a>
+          </a><br/>
+          {` myaddr:${MiniKit.user.walletAddress}`}
         </p>
       {txHash && (
         <p>
