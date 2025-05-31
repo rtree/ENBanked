@@ -6,7 +6,7 @@ import { MiniKit } from '@worldcoin/minikit-js';
 import { VAULT_ADDRESS, RPC_URL } from '../config';
 import { vaultFullAbi as vaultAbi } from '../abi/vaultZkWei';
 import { Interface, JsonRpcProvider, ZeroAddress } from 'ethers';
-import { generateProof } from '../zk'; // Worker ラッパ (args, log) 形式
+import { generateProofRaw } from '../zk/generateProof';  // Worker 経由を排除
 import { makeLogger } from '../utils/logger';
 
 const provider = new JsonRpcProvider(RPC_URL);
@@ -56,7 +56,8 @@ export default function ClaimWeiQR() {
       const decodedNote = atob(base64urlToBase64(noteB64)); // base64urlをbase64に変換してから
       note = JSON.parse(decodedNote); // ここでJSONパース
     } catch (e: unknown) {
-      const error = e as Error;
+      // 型アサーションでエラーを Error 型にキャスト
+      const error = e as Error;  // e を Error 型にキャスト
       return logLine('❌ note の解析に失敗:', error.message || error);
     }
 
@@ -64,11 +65,10 @@ export default function ClaimWeiQR() {
     if (Number.isNaN(idxFromNote)) return logLine('❌ note に idx 無し');
 
     // 必要データを並列取得
-    const root = await getCurrentRoot();
-    const leaves = [];
-    for (let i = 0; i < 8; i++) {
-      leaves.push(await getLeaf(i));
-    }
+    const [root, leaves] = await Promise.all([
+      getCurrentRoot(),
+      Promise.all([...Array(8)].map((_, i) => getLeaf(i).then((l) => String(l)))),
+    ]);
 
     logLine('currentRoot =', root);
     logLine('idx =', idxFromNote);
@@ -76,9 +76,8 @@ export default function ClaimWeiQR() {
     // 証明生成
     let proof;
     try {
-      proof = await generateProof(
-        { noteB64, rootHex: root, idx: idxFromNote, leaves },
-        logLine // Worker に proxy され進捗転送
+      proof = await generateProofRaw(
+        noteB64, root, leaves, logLine // 同期的に証明生成
       );
     } catch (e: any) {
       return logLine('💥 proof error:', e.message || e);
@@ -113,42 +112,38 @@ export default function ClaimWeiQR() {
 
     /* ---------- MiniKit 送信 ---------- */
     logLine('🚀 sending tx via MiniKit…');
-    try {
-      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
-        transaction: [
-          {
-            address: VAULT_ADDRESS,
-            abi: vaultAbi,
-            functionName: 'withdraw',
-            args: [
-              [a[0], a[1]],
-              [
-                [b[0][0], b[0][1]],
-                [b[1][0], b[1][1]],
-              ],
-              [c[0], c[1]],
-              nullifierHash,
-              root,
-              MiniKit.user.walletAddress,
+    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+      transaction: [
+        {
+          address: VAULT_ADDRESS,
+          abi: vaultAbi,
+          functionName: 'withdraw',
+          args: [
+            [a[0], a[1]],
+            [
+              [b[0][0], b[0][1]],
+              [b[1][0], b[1][1]],
             ],
-          },
-        ],
-      });
+            [c[0], c[1]],
+            nullifierHash,
+            root,
+            MiniKit.user.walletAddress,
+          ],
+        },
+      ],
+    });
 
-      if (finalPayload.status !== 'success')
-        return logLine('❌ MiniKit error', JSON.stringify(finalPayload));
+    if (finalPayload.status !== 'success')
+      return logLine('❌ MiniKit error', JSON.stringify(finalPayload));
 
-      const txHash = finalPayload.transaction_id;
-      logLine('⏳ waiting for receipt…', txHash.slice(0, 10), '…');
+    const txHash = finalPayload.transaction_id;
+    logLine('⏳ waiting for receipt…', txHash.slice(0, 10), '…');
 
-      const receipt = await provider.waitForTransaction(txHash, 1, 40_000);
-      if (!receipt) return logLine('💥 tx timeout / not found');
-      if (receipt.status !== 1) return logLine('💥 tx reverted; status =', receipt.status);
+    const receipt = await provider.waitForTransaction(txHash, 1, 40_000);
+    if (!receipt) return logLine('💥 tx timeout / not found');
+    if (receipt.status !== 1) return logLine('💥 tx reverted; status =', receipt.status);
 
-      logLine('🎉 confirmed in block', receipt.blockNumber);
-    } catch (e: any) {
-      return logLine('💥 MiniKit sendTransaction error:', e.message || e);
-    }
+    logLine('🎉 confirmed in block', receipt.blockNumber);
   };
 
   /* ---------- UI ---------- */
