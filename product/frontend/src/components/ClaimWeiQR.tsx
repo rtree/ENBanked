@@ -27,6 +27,11 @@ const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<bo
 
 /* base64url → base64 */
 const b64url2b64 = (s: string) => s.replace(/-/g, '+').replace(/_/g, '/');
+function stringifyWithBigInt(obj) {
+  return JSON.stringify(obj, (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  );
+}
 
 export default function ClaimWeiQR() {
   const [noteB64, setNote] = useState<string | null>(null);
@@ -103,7 +108,7 @@ export default function ClaimWeiQR() {
         leafIndex,      // leafIndex
         logLine         // log function
       );
-      logLine(JSON.stringify(proof, null, 2));
+      logLine(stringifyWithBigInt(proof));
       logLine('🔐 Proof done');
     } catch (e: any) {
       return logLine('💥 proof error:',  e.stack,  e.message);
