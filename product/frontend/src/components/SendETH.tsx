@@ -122,9 +122,20 @@ const SendETH = () => {
             rel="noreferrer"
           >
             {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
-          </a><br/>
-          {` myaddr:${walletAddress}`}
-        </p>
+          </a>
+\        </p>
+          {walletAddress && (
+          <p>
+              <br/>
+              <a
+                href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
+              </a>
+          </p>
+          )}
       {txHash && (
         <p>
           TxHash:{' '}
