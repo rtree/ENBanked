@@ -14,9 +14,14 @@ type WorkerArgs = {
 };
 
 expose({
-  // generate 関数に必要な引数を渡す
-  generate: ({ noteB64, rootHex, leaves, log }: WorkerArgs) =>
-    generateProofRaw(noteB64, rootHex, leaves, log),
+  generate(args: {
+    noteB64: string;
+    rootHex: string;
+    leaves: string[];
+    log: (msg: string) => void; // ← ここは proxy された log を受け取れるように関数型で OK
+  }) {
+    return generateProofRaw(args.noteB64, args.rootHex, args.leaves, args.log);
+  }
 });
 
 // Worker 内エラーを UI へ転送
