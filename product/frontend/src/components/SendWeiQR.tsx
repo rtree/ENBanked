@@ -5,7 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { vaultAbi } from '../abi/vaultZkWei';
 import { poseidon2 as poseidon } from 'poseidon-lite';
 import { VAULT_ADDRESS, APP_ID, AMOUNT_HEX } from '../config';
-import { hexlify, randomBytes, zeroPadValue } from 'ethers';
+import { toBeHex, hexlify, randomBytes, zeroPadValue } from 'ethers';
 
 type NoteInfo = { n: string; s: string; idx: number };
 
@@ -50,11 +50,14 @@ export default function SendWeiQR() {
 
       /* 2.commitment を計算 */
       logLine('🔄 Poseidon( nullifier , secret ) calculating...');
+      // const commitmentBig = poseidon([BigInt(nullifier), BigInt(secret)]);
+      // const commitmentHex = zeroPadValue(
+      //   '0x' + commitmentBig.toString(16),
+      //   32
+      // );
       const commitmentBig = poseidon([BigInt(nullifier), BigInt(secret)]);
-      const commitmentHex = zeroPadValue(
-        '0x' + commitmentBig.toString(16),
-        32
-      );
+      const commitmentHex = zeroPadValue(toBeHex(commitmentBig), 32);
+
       logLine('   • commitment =', commitmentHex);
 
       /* 3) MiniKit 経由で deposit TX */
