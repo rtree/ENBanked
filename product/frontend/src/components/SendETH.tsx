@@ -59,7 +59,7 @@ const SendETH = () => {
     const valueInWei = '0x1'
 
     if (!isMiniApp) {
-      debug('⚠️ MiniKit未検出。World Appから開いてください。')
+      debug('⚠️ MiniKit未検出。WorldAppから開いてください。')
       return
     }
 
