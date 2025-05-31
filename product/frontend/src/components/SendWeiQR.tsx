@@ -1,67 +1,151 @@
+// PRJROOT/product/frontend/src/components/SendWeiQR.tsx
 import { useState } from 'react';
-import { MiniKit }   from '@worldcoin/minikit-js';
+import { MiniKit } from '@worldcoin/minikit-js';
 import { QRCodeSVG } from 'qrcode.react';
-import { vaultAbi }  from '../abi/vaultZkWei';
-import { poseidon1 as poseidon }  from 'poseidon-lite';
-import { VAULT_ADDRESS, APP_ID, AMOUNT_HEX, TREE_DEPTH } from '../config';
+import { vaultAbi } from '../abi/vaultZkWei';
+import { poseidon1 as poseidon } from 'poseidon-lite';
+import { VAULT_ADDRESS, APP_ID, AMOUNT_HEX } from '../config';
 import { hexlify, randomBytes, zeroPadValue } from 'ethers';
 
 type NoteInfo = { n: string; s: string; idx: number };
 
 export default function SendWeiQR() {
-  const [note, setNote]     = useState<NoteInfo|null>(null);
-  const [txid, setTxid]     = useState<string|null>(null);
-  const [log , setLog ]     = useState<string>('📭 log here');
+  const [note, setNote] = useState<NoteInfo | null>(null);
+  const [txid, setTxid] = useState<string | null>(null);
+  const [waiting, setWaiting] = useState(false);
+  const [log, setLog] = useState('📭 log here');
 
-  const logLine = (...args:any[]) =>
-    setLog(p=>p+'\n'+args.map(x=>typeof x==='string'?x:JSON.stringify(x)).join(' '));
+  /* ========== 共通ログ関数 ========== */
+  const logLine = (...parts: any[]) => {
+    const time = new Date().toISOString().slice(11, 19); // HH:MM:SS
+    const line =
+      `[${time}] ` +
+      parts
+        .map((p) =>
+          typeof p === 'string' ? p : JSON.stringify(p, null, 2)
+        )
+        .join(' ');
+    setLog((prev) => prev + '\n' + line);
+    console.debug(line); // DevTools にも出す
+  };
 
+  /* ========== メイン処理 ========== */
   async function handleDeposit() {
-    if (!MiniKit.isInstalled()) { logLine('MiniKit 未検出'); return; }
+    logLine('🟢 handleDeposit START');
 
-    /* 1⃣ 秘密値ランダム生成 */
-    const nullifier = hexlify(randomBytes(31));   // 248-bit
-    const secret    = hexlify(randomBytes(31));
-    
-    /* 2⃣ commitment = Poseidon(nullifier,secret) */
-    const commitment = poseidon([BigInt(nullifier), BigInt(secret)]);
-    const commitmentHex = zeroPadValue('0x' + commitment.toString(16), 32);
+    /* 0) MiniKit 有無チェック */
+    if (!MiniKit.isInstalled()) {
+      logLine('⛔ MiniKit 未検出：WorldApp から開いてください');
+      return;
+    }
 
-    /* 3⃣ MiniKit 経由で deposit Tx */
-    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
-      transaction: [{
-        address: VAULT_ADDRESS,
-        abi: vaultAbi,
-        functionName: 'deposit',
-        args: [commitmentHex],
-        value: AMOUNT_HEX
-      }]
-    });
+    setWaiting(true);
+    try {
+      /* 1) 秘密情報を生成 */
+      logLine('🔑 秘密値生成中…');
+      const nullifier = hexlify(randomBytes(31)); // 248-bit
+      const secret = hexlify(randomBytes(31));
+      logLine('   • nullifier =', nullifier);
+      logLine('   • secret    =', secret);
 
-    logLine('deposit result', finalPayload);
-    if (finalPayload.status !== 'success') return;
+      /* 2) commitment を計算 */
+      logLine('🔄 Poseidon( nullifier , secret ) 計算中…');
+      const commitmentBig = poseidon([BigInt(nullifier), BigInt(secret)]);
+      const commitmentHex = zeroPadValue(
+        '0x' + commitmentBig.toString(16),
+        32
+      );
+      logLine('   • commitment =', commitmentHex);
 
-    /* 4⃣ leaf index は Deposited イベントから取得 */
-    const idx = 0; // ←簡易版: ツリーが浅いので 0〜7 を手動で管理しても OK
-                   //   本番は RPC でイベントを取得して動的に設定
+      /* 3) MiniKit 経由で deposit TX */
+      logLine('📡 トランザクション送信要求を MiniKit に送信…');
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: VAULT_ADDRESS,
+            abi: vaultAbi,
+            functionName: 'deposit',
+            args: [commitmentHex],
+            value: AMOUNT_HEX,
+          },
+        ],
+      });
 
-    const noteInfo:NoteInfo = { n: nullifier.slice(2), s: secret.slice(2), idx };
-    setNote(noteInfo);
-    setTxid(finalPayload.transaction_id);
+      logLine('📩 MiniKit 応答:', finalPayload);
+      if (finalPayload.status !== 'success') {
+        logLine('❌ 送金失敗: ', finalPayload.status);
+        return;
+      }
+
+      /* 4) leaf index を決める（デモでは 0 に固定）*/
+      const idx = 0;
+      const noteInfo: NoteInfo = {
+        n: nullifier.slice(2),
+        s: secret.slice(2),
+        idx,
+      };
+      setNote(noteInfo);
+      setTxid(finalPayload.transaction_id);
+      logLine('✅ トランザクション成功! TxID=', finalPayload.transaction_id);
+      logLine('✅ QR Note =', noteInfo);
+    } catch (err) {
+      logLine('💥 例外発生', err);
+    } finally {
+      setWaiting(false);
+      logLine('🔚 handleDeposit END');
+    }
   }
 
-  if (!note) return <button onClick={handleDeposit}>💸 1 wei を預けて QR 作成</button>;
+  /* ========== 表示 ========== */
+  if (!note)
+    return (
+      <div style={{ margin: '1em' }}>
+        <button onClick={handleDeposit} disabled={waiting}>
+          {waiting ? '⏳ 送信中…' : '💸 1 wei を預けて QR 作成'}
+        </button>
+        <pre
+          style={{
+            background: '#111',
+            color: '#0f0',
+            padding: '1em',
+            fontSize: 12,
+            maxHeight: 250,
+            overflowY: 'auto',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {log}
+        </pre>
+      </div>
+    );
 
-  const qr = btoa(JSON.stringify(note));           // base64
-  const claimUrl = `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(`/claim?note=${qr}`)}`;
+  const qr = btoa(JSON.stringify(note));
+  const claimUrl = `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(
+    `/claim?note=${qr}`
+  )}`;
 
   return (
-    <div style={{margin:'1em'}}>
-      <p>✅ TxID: {txid}</p>
+    <div style={{ margin: '1em' }}>
+      <p>✅ <b>TxID:</b> {txid}</p>
       <p>👇 QR を労働者に渡してください</p>
-      <QRCodeSVG value={claimUrl} size={180}/>
-      <p><a href={claimUrl}>{claimUrl}</a></p>
-      <pre style={{background:'#111',color:'#0f0',padding:'1em',fontSize:12,maxHeight:200,overflowY:'auto'}}>{log}</pre>
+      <QRCodeSVG value={claimUrl} size={180} />
+      <p>
+        <a href={claimUrl}>{claimUrl}</a>
+      </p>
+
+      <pre
+        style={{
+          background: '#111',
+          color: '#0f0',
+          padding: '1em',
+          fontSize: 12,
+          maxHeight: 250,
+          overflowY: 'auto',
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {log}
+      </pre>
     </div>
   );
 }

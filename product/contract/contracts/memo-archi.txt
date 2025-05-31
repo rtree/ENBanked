@@ -1,3 +1,11 @@
+
+npx hardhat run ./scripts/deployZk.js --network worldChainMainnet
+✅ Groth16Verifier deployed to: 0x33014731E74F0610aefA9318b3E6600d51fD905e
+✅ PoseidonT3 deployed to: 0x4395cf02B8d343AAE958BDA7Ac6Ed71fbD4aBd48
+✅ VaultZkWei deployed to: 0x70a6EEccEAB2F2e2ffBD20b960f4cA205675ba1c
+
+
+
 # 1. 依存を入れる
 npm i hardhat poseidon-solidity snarkyjs poseidon-lite
 

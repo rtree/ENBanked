@@ -1,4 +1,10 @@
 export const vaultAbi = [
+  /*----- Constructor -----*/
+  {
+    inputs: [{ internalType: 'address', name: 'verifierAddress', type: 'address' }],
+    stateMutability: 'nonpayable',
+    type: 'constructor'
+  },
   /*----- deposit(bytes32 commitment) payable -----*/
   {
     inputs: [{ internalType: 'bytes32', name: 'commitment', type: 'bytes32' }],
@@ -10,36 +16,82 @@ export const vaultAbi = [
   /*----- withdraw(a,b,c,nullifierHash,root,to) -----*/
   {
     inputs: [
-      { name: 'a',  type: 'uint256[2]' },
-      { name: 'b',  type: 'uint256[2][2]' },
-      { name: 'c',  type: 'uint256[2]'   },
+      { name: 'a', type: 'uint256[2]' },
+      { name: 'b', type: 'uint256[2][2]' },
+      { name: 'c', type: 'uint256[2]' },
       { name: 'nullifierHash', type: 'uint256' },
-      { name: 'root',          type: 'uint256' },
-      { name: 'to',            type: 'address' }
+      { name: 'root', type: 'uint256' },
+      { name: 'to', type: 'address payable' }
     ],
     name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function'
   },
-  /*----- events (Deposit / Withdrawn) -----*/
+  /*----- AMOUNT (view) -----*/
+  {
+    inputs: [],
+    name: 'AMOUNT',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  /*----- currentRoot (view) -----*/
+  {
+    inputs: [],
+    name: 'currentRoot',
+    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  /*----- leaves (view) -----*/
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'leaves',
+    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  /*----- nextIdx (view) -----*/
+  {
+    inputs: [],
+    name: 'nextIdx',
+    outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  /*----- nullifierUsed (view) -----*/
+  {
+    inputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    name: 'nullifierUsed',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  /*----- Deposited Event -----*/
   {
     anonymous: false,
     inputs: [
       { indexed: false, internalType: 'bytes32', name: 'commitment', type: 'bytes32' },
-      { indexed: false, internalType: 'uint8',   name: 'index',      type: 'uint8'   },
-      { indexed: false, internalType: 'bytes32', name: 'newRoot',    type: 'bytes32' }
+      { indexed: false, internalType: 'uint8', name: 'idx', type: 'uint8' },
+      { indexed: false, internalType: 'bytes32', name: 'root', type: 'bytes32' }
     ],
     name: 'Deposited',
     type: 'event'
   },
+  /*----- Withdrawn Event -----*/
   {
     anonymous: false,
     inputs: [
-      { indexed: true,  internalType: 'address', name: 'to',            type: 'address' },
+      { indexed: false, internalType: 'address', name: 'to', type: 'address' },
       { indexed: false, internalType: 'bytes32', name: 'nullifierHash', type: 'bytes32' }
     ],
     name: 'Withdrawn',
     type: 'event'
+  },
+  /*----- Receive Function -----*/
+  {
+    stateMutability: 'payable',
+    type: 'receive'
   }
 ] as const;
