@@ -35,29 +35,24 @@ function base64urlToBase64(b64url: string): string {
 export async function generateProofRaw(
   noteB64: string,
   rootHex: string,
+  leaves: string[],
   log: (msg: string) => void = () => {}
 ) {
-  if (!noteB64) throw new Error('noteB64 is undefined');
+  log('parse note');
 
-  const decoded = base64urlToBase64(noteB64);  // ← 必要なら base64url 対応
-  const note = JSON.parse(atob(decoded));
-
+  const note = JSON.parse(atob(base64urlToBase64(noteB64))); // 変換付きにすること！
   if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   const input = {
-    n: BigInt('0x' + note.n),
-    s: BigInt('0x' + note.s),
+    n:    BigInt('0x' + note.n),
+    s:    BigInt('0x' + note.s),
     root: BigInt(rootHex),
     pathElements: ZERO_HASHES,
-    pathIndices: [0, 0, 0],
+    pathIndices:  [0, 0, 0],
   };
 
   log('fullProve start');
-  const { proof, publicSignals } = await groth16.fullProve(
-    input,
-    wasmUrl,
-    zkeyUrl
-  );
+  const { proof, publicSignals } = await groth16.fullProve(input, wasmUrl, zkeyUrl);
   log('fullProve done');
 
   return {
@@ -68,8 +63,8 @@ export async function generateProofRaw(
     ],
     c: proof.pi_c.slice(0, 2).map(BigInt),
     inputs: [
-      publicSignals[0], // nullifierHash
-      rootHex,          // root
+      publicSignals[0],
+      rootHex,
     ] as [string, string],
   };
 }
