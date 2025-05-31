@@ -72,21 +72,25 @@ export default function ClaimWeiQR() {
       return;
     }
     logLine('✅ Leaf matches on-chain');
+    const leafIndex = leaves.indexOf(leafHex);
 
     /* 3) Merkle path 構築 ----------------------------------------- */
-    // ★ 深さ3固定のシンプル実装
-    const pathIndices:number[]   = [0,0,0];          // 今は idx=0 前提
-    const pathElements:string[]  = [
-      leaves[1],                                       // 隣の葉 (レベル0)
-      poseidonHex(leaves[2], leaves[3]),               // レベル1 左右 sibling
-      poseidonHex(
-        poseidonHex(leaves[4], leaves[5]),
-        poseidonHex(leaves[6], leaves[7])              // レベル2
-      )
-    ];
-    logLine('🛣️ pathElements[0] =', pathElements[0]);
-    logLine('🛣️ pathElements[1] =', pathElements[1]);
-    logLine('🛣️ pathElements[2] =', pathElements[2]);
+    // 動的に leafIndex に基づいて pathIndices と pathElements を構築
+    const pathIndices: number[] = [];
+    const pathElements: string[] = [];
+    let currentIndex = leafIndex;
+
+    for (let level = 0; level < 3; level++) {
+      const siblingIndex = currentIndex ^ 1; // XOR to get sibling index
+      pathIndices.push(currentIndex % 2);   // 0 for left, 1 for right
+      pathElements.push(leaves[siblingIndex]);
+
+      // Move to the parent level
+      currentIndex = Math.floor(currentIndex / 2);
+    }
+
+    logLine('🛣️ pathIndices =', pathIndices);
+    logLine('🛣️ pathElements =', pathElements);
 
     /* 4) 証明生成 -------------------------------------------------- */
     let proof;
