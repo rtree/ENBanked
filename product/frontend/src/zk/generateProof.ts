@@ -33,7 +33,10 @@ export async function generateProofRaw(
   log: (msg: string) => void = () => {}
 ) {
   log('parse note');
+  
+  // ここで一度だけ atob() を実行し、base64 をデコード
   const note = JSON.parse(atob(noteB64));          // { n, s, idx }
+  
   if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   const input = {
