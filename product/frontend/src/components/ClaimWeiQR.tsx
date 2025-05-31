@@ -102,10 +102,15 @@ try {
     var cur = leafBig;
 
     for (var i = 0; i < 3; i++) {
-        cur = poseidon([
-          pathIndices[i] === 0 ? pathElements[i] : cur,
-          pathIndices[i] === 1 ? cur : pathElements[i],
-        ])
+      if(pathIndices[i] === 0) {
+        cur = poseidon([cur, BigInt('0x' + pathElements[i])]);
+      }else{
+        cur = poseidon([BigInt('0x' + pathElements[i]), cur]);
+      }
+        // cur = poseidon([
+        //   pathIndices[i] === 0 ? pathElements[i] : cur,
+        //   pathIndices[i] === 1 ? cur : pathElements[i],
+        // ])
             logLine('testRooooot', cur.toString(16), cur.toString());
 
     }
