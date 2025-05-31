@@ -23,7 +23,7 @@ const read = async (fn: string, args: any[] = []) => {
 const getCurrentRoot = () => read('currentRoot') as Promise<string>;
 const getNextIdx = async () => Number(await read('nextIdx'));
 const getLeaf = (i: number) => read('leaves', [i]) as Promise<string>;
-const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean];
+const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean>;
 
 /* base64url → base64 変換関数 */
 function base64urlToBase64(base64url: string): string {
@@ -55,8 +55,10 @@ export default function ClaimWeiQR() {
     try {
       const decodedNote = atob(base64urlToBase64(noteB64)); // base64urlをbase64に変換してから
       note = JSON.parse(decodedNote); // ここでJSONパース
-    } catch (e) {
-      return logLine('❌ note の解析に失敗:', e.message || e);
+    } catch (e: unknown) {
+      // 型アサーションでエラーを Error 型にキャスト
+      const error = e as Error;  // e を Error 型にキャスト
+      return logLine('❌ note の解析に失敗:', error.message || error);
     }
 
     const idxFromNote = Number(note.idx);
