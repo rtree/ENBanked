@@ -65,8 +65,12 @@ export async function generateProofRaw(
     n: BigInt('0x' + note.n),
     s: BigInt('0x' + note.s),
     root: BigInt(rootHex),
-    pathElements: pathElements.map(e => BigInt('0x' + e)),
-    pathIndices,
+    // ✅ 修正ポイント 1: pathElements の変換
+    pathElements: pathElements.map(e =>
+      BigInt(e.startsWith('0x') ? e : ('0x' + e))
+    ),
+    // ✅ 修正ポイント 2: pathIndices を BigInt に変換
+    pathIndices: pathIndices.map(BigInt),
   };
 
   log('fullProve start');
