@@ -39,21 +39,34 @@ export async function generateProofRaw(
   noteB64: string,
   rootHex: string,
   leaves: string[],
+  leafIndex: number,
   log: (msg: string) => void = () => {}
 ) {
   log('parse note');
 
   // note を base64url → base64 に変換してから JSON 解析
   const note = JSON.parse(atob(base64urlToBase64(noteB64)));
-  if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   // 入力データ作成
+  const pathIndices: number[] = [];
+  const pathElements: string[] = [];
+  let currentIndex = leafIndex;
+
+  for (let level = 0; level < TREE_DEPTH; level++) {
+    const siblingIndex = currentIndex ^ 1; // XOR to get sibling index
+    pathIndices.push(currentIndex % 2);   // 0 for left, 1 for right
+    pathElements.push(leaves[siblingIndex]);
+
+    // Move to the parent level
+    currentIndex = Math.floor(currentIndex / 2);
+  }
+
   const input = {
     n: BigInt('0x' + note.n),
     s: BigInt('0x' + note.s),
     root: BigInt(rootHex),
-    pathElements: ZERO_HASHES,
-    pathIndices: [0, 0, 0],  // 左枝固定
+    pathElements: pathElements.map(e => BigInt('0x' + e)),
+    pathIndices,
   };
 
   log('fullProve start');

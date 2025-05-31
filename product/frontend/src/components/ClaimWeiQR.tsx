@@ -94,19 +94,22 @@ export default function ClaimWeiQR() {
 
     /* 4) 証明生成 -------------------------------------------------- */
     let proof;
-    try{
+    try {
       logLine('🔄 generateProofRaw() 開始');
       proof = await generateProofRaw(
-        noteB64,
-        root,
-        pathElements,
-        logLine
+        noteB64,        // noteB64
+        root,           // rootHex
+        leaves,         // leaves
+        leafIndex,      // leafIndex
+        logLine         // log function
       );
       logLine('🔐 Proof done');
-    }catch(e:any){ return logLine('💥 proof error:', e.message); }
+    } catch (e: any) {
+      return logLine('💥 proof error:', e.message);
+    }
 
-    const {a,b,c,inputs:[nullifierHash]} = proof;
-    logLine('✅ proof OK (nullifierHash=', nullifierHash,')');
+    const { a, b, c, inputs: [nullifierHash] } = proof;
+    logLine('✅ proof OK (nullifierHash=', nullifierHash, ')');
 
     /* 5) nullifier 重複チェック ------------------------------------ */
     if(await isNullifierSpent(nullifierHash))
