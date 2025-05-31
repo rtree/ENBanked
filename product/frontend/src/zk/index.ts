@@ -7,7 +7,7 @@ import type { ProofInput } from './generateProof';
 import type { LogFn } from '../utils/logger';
 
 interface WorkerApi {
-  generate(args: ProofInput): Promise<any>;
+  generate(args: ProofInput & { log: LogFn }): Promise<any>;
 }
 
 const worker = wrap(new WorkerFactory()) as unknown as WorkerApi;

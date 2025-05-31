@@ -2,70 +2,52 @@
 // File: src/zk/generateProof.ts
 // ===============================
 import { groth16 } from 'snarkjs';
-import { poseidon1, poseidon2 } from 'poseidon-lite';
-import wasmUrl from './withdraw_js/withdraw.wasm?url';
-import zkeyUrl from './withdraw_final.zkey?url';
-import type { LogFn } from '../utils/logger';
-
-const TREE_DEPTH = 3;   // VaultZkWei は固定深さ 3
-
+import { poseidon2 as poseidon } from 'poseidon-lite';
+import wasmUrl  from './withdraw_js/withdraw.wasm?url';
+import zkeyUrl  from './withdraw_final.zkey?url';
+import type { LogFn } from '../utils/logger'; 
 export type ProofInput = {
-  noteB64: string;
-  rootHex: string;
-  idx: number;        // leaf index
-  leaves: string[];   // bytes32 hex strings, length 8
-  log?: LogFn;
+  noteB64: string;    // QR に入っている base64 文字列
+  rootHex: string;    // currentRoot (0x…32byte)
+  idx:     number;    // leaf index (現状 idx=0 前提でも番号は持たせる)
+  leaves:  string[];  // 先頭 8 枚の葉 (将来の動的パス生成用)
 };
 
-/* --- Merkle パスを計算（深さ 3）--- */
-function buildMerklePath(idx: number, leaves: string[]) {
-  const elems: bigint[] = [];
-  const indices: number[] = [];
+const TREE_DEPTH = 3;              // ← 深さ3固定
 
-  /* Level-0 ―― 兄弟リーフ */
-  elems.push(BigInt(leaves[idx ^ 1]));
-  indices.push(idx & 1);
-
-  /* Level-1 ―― 4 枚 → 2 枚のハッシュ */
-  const l1: bigint[] = [];
-  for (let i = 0; i < 4; i++) {
-    l1.push(poseidon2([BigInt(leaves[2 * i]), BigInt(leaves[2 * i + 1])]));
+/** 0, Poseidon(0,0), Poseidon(Poseidon(0,0), Poseidon(0,0)) */
+const ZERO_HASHES: bigint[] = (() => {
+  const hs: bigint[] = [0n];
+  let cur = 0n;
+  for (let i = 1; i < TREE_DEPTH; i++) {
+    cur = poseidon([cur, cur]);
+    hs.push(cur);
   }
-  elems.push(l1[(idx >> 1) ^ 1]);
-  indices.push((idx >> 1) & 1);
+  return hs;                       // [0, h1, h2]
+})();
 
-  /* Level-2 ―― 2 枚 → root */
-  const leftRoot  = poseidon2([l1[0], l1[1]]);
-  const rightRoot = poseidon2([l1[2], l1[3]]);
-  elems.push(((idx >> 2) & 1) === 0 ? rightRoot : leftRoot);
-  indices.push((idx >> 2) & 1);
-
-  return { pathElements: elems, pathIndices: indices };
-}
-
-/* --- 証明生成メイン --- */
+/* ---------- 抜本的に pathElements / pathIndices は「idx=0 前提」 ---------- */
 export async function generateProofRaw(
-  { noteB64, rootHex, idx, leaves, log = () => {} }: ProofInput,
+  noteB64: string,
+  rootHex: string,
+  log: LogFn = () => {}
 ) {
   log('parse note');
-  const note = JSON.parse(atob(noteB64));
-
-  if (idx < 0 || idx >= 8)        throw new Error('idx out of range');
-  if (leaves.length !== 8)        throw new Error('leaves array must be length 8');
-
-  const { pathElements, pathIndices } = buildMerklePath(idx, leaves);
-  const nullifierHash = poseidon1([BigInt('0x' + note.n)]).toString();
+  const note = JSON.parse(atob(noteB64));          // { n, s, idx }
+  if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   const input = {
-    n:   BigInt('0x' + note.n),
-    s:   BigInt('0x' + note.s),
+    n:    BigInt('0x' + note.n),
+    s:    BigInt('0x' + note.s),
     root: BigInt(rootHex),
-    pathElements,
-    pathIndices,
+    pathElements: ZERO_HASHES,
+    pathIndices:  [0, 0, 0],       // 左枝固定
   };
 
   log('fullProve start');
-  const { proof } = await groth16.fullProve(input, wasmUrl, zkeyUrl);
+  const { proof, publicSignals } = await groth16.fullProve(
+    input, wasmUrl, zkeyUrl
+  );
   log('fullProve done');
 
   return {
@@ -76,8 +58,8 @@ export async function generateProofRaw(
     ],
     c: proof.pi_c.slice(0, 2).map(BigInt),
     inputs: [
-      '0x' + BigInt(nullifierHash).toString(16),
-      rootHex,
+      publicSignals[0],   // nullifierHash
+      rootHex             // root
     ] as [string, string],
   };
 }

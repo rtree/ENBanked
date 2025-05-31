@@ -6,13 +6,13 @@ import { MiniKit } from '@worldcoin/minikit-js';
 import { VAULT_ADDRESS, RPC_URL } from '../config';
 import { vaultFullAbi as vaultAbi } from '../abi/vaultZkWei';
 import { Interface, JsonRpcProvider, ZeroAddress } from 'ethers';
-import { generateProof } from '../zk';
+import { generateProof } from '../zk';           // Worker ラッパ (args, log) 形式
 import { makeLogger } from '../utils/logger';
 
 const provider   = new JsonRpcProvider(RPC_URL);
 const vaultIface = new Interface(vaultAbi);
 
-/* ---- read helpers ---- */
+/* -------- read-only helpers -------- */
 const read = async (fn: string, args: any[] = []) => {
   const data = await provider.call({
     to: VAULT_ADDRESS,
@@ -20,18 +20,17 @@ const read = async (fn: string, args: any[] = []) => {
   });
   return vaultIface.decodeFunctionResult(fn, data)[0];
 };
-
-const getCurrentRoot = () => read('currentRoot') as Promise<string>;
-const getNextIdx     = () => Number(read('nextIdx'));
-const getLeaf        = (i: number) => read('leaves', [i]) as Promise<string>;
+const getCurrentRoot   = () => read('currentRoot') as Promise<string>;
+const getNextIdx       = async () => Number(await read('nextIdx'));
+const getLeaf          = (i: number) => read('leaves', [i]) as Promise<string>;
 const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean>;
 
 export default function ClaimWeiQR() {
   const [noteB64, setNote] = useState<string | null>(null);
   const [log, setLog]      = useState('📭 log here');
-  const logLine = makeLogger((l) => setLog((p) => p + '\n' + l));
+  const logLine            = makeLogger((l) => setLog((p) => p + '\n' + l));
 
-  /* URL から note 取得 */
+  /* URL から note を取得 */
   useEffect(() => {
     const b64 = new URLSearchParams(window.location.search).get('note');
     if (b64) {
@@ -40,24 +39,33 @@ export default function ClaimWeiQR() {
     }
   }, []);
 
-  /* ----- main ----- */
+  /* ---------- main ---------- */
   const handleWithdraw = async () => {
     logLine('🟢 handleWithdraw START');
-    if (!noteB64)              return logLine('❌ note なし');
+    if (!noteB64)               return logLine('❌ note なし');
     if (!MiniKit.isInstalled()) return logLine('❌ MiniKit 未検出');
 
+    /* note 解析 (n,s,idx) */
+    const note = JSON.parse(atob(noteB64));
+    const idxFromNote = Number(note.idx);
+    if (Number.isNaN(idxFromNote)) return logLine('❌ note に idx 無し');
+
     /* 必要データを並列取得 */
-    const root  = await getCurrentRoot();
-    const idx   = (await getNextIdx()) - 1;           // note は前回 deposit
-    const leaves= await Promise.all([...Array(8)].map((_,i)=>getLeaf(i)));
+    const [root, leaves] = await Promise.all([
+      getCurrentRoot(),
+      Promise.all([...Array(8)].map((_, i) => getLeaf(i))),
+    ]);
 
     logLine('currentRoot =', root);
-    logLine('idx =', idx);
+    logLine('idx =', idxFromNote);
 
-    /* 証明生成 */
+    /* ---------- 証明生成 ---------- */
     let proof;
     try {
-      proof = await generateProof({ noteB64, rootHex: root, idx, leaves }, logLine);
+      proof = await generateProof(
+        { noteB64, rootHex: root, idx: idxFromNote, leaves },
+        logLine               // ← Worker に proxy され進捗転送
+      );
     } catch (e: any) {
       return logLine('💥 proof error:', e.message || e);
     }
@@ -68,7 +76,7 @@ export default function ClaimWeiQR() {
     if (await isNullifierSpent(nullifierHash))
       return logLine('❌ 既に使用済み');
 
-    /* withdraw calldata */
+    /* ---------- withdraw calldata ---------- */
     const calldata = vaultIface.encodeFunctionData('withdraw', [
       [a[0], a[1]],
       [
@@ -89,7 +97,7 @@ export default function ClaimWeiQR() {
       return logLine('🧪 eth_call ❌', e.reason || e.message || e);
     }
 
-    /* MiniKit 送信 */
+    /* ---------- MiniKit 送信 ---------- */
     logLine('🚀 sending tx via MiniKit…');
     const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
       transaction: [
@@ -119,13 +127,13 @@ export default function ClaimWeiQR() {
     logLine('⏳ waiting for receipt…', txHash.slice(0, 10), '…');
 
     const receipt = await provider.waitForTransaction(txHash, 1, 40_000);
-    if (!receipt)         return logLine('💥 tx timeout / not found');
+    if (!receipt)          return logLine('💥 tx timeout / not found');
     if (receipt.status!==1) return logLine('💥 tx reverted; status =', receipt.status);
 
     logLine('🎉 confirmed in block', receipt.blockNumber);
   };
 
-  /* UI */
+  /* ---------- UI ---------- */
   if (!noteB64) return <p>❌ note パラメータが見つかりません</p>;
 
   return (
@@ -133,12 +141,9 @@ export default function ClaimWeiQR() {
       <button onClick={handleWithdraw}>💰 1 wei 受け取る</button>
       <pre
         style={{
-          background: '#111',
-          color: '#0f0',
-          padding: '1em',
-          fontSize: 12,
-          maxHeight: 260,
-          overflowY: 'auto',
+          background: '#111', color: '#0f0',
+          padding: '1em', fontSize: 12,
+          maxHeight: 260, overflowY: 'auto',
           whiteSpace: 'pre-wrap',
         }}
       >
