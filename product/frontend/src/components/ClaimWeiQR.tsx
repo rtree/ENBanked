@@ -3,12 +3,14 @@ import { MiniKit } from '@worldcoin/minikit-js'
 import { VAULT_ADDRESS, RPC_URL } from '../config'
 import { vaultWithdrawAbi as vaultAbi } from '../abi/vaultZkWei'
 import { Interface, JsonRpcProvider, ZeroAddress } from 'ethers'
-declare function generateProof(note: string): Promise<{
-  a: bigint[];            // ← bigint 推奨
-  b: bigint[][];
-  c: bigint[];
-  inputs: [string, string];  // [nullifierHash, root]
-}>;
+import { generateProof } from '../zk';
+// declare function generateProof(note: string): Promise<{
+//   a: bigint[];            // ← bigint 推奨
+//   b: bigint[][];
+//   c: bigint[];
+//   inputs: [string, string];  // [nullifierHash, root]
+// }>;
+
 /* 0) ethers provider 準備（WorldChain メインネット） */
 const provider = new JsonRpcProvider(RPC_URL)
 
@@ -58,12 +60,16 @@ export default function ClaimWeiQR() {
 
     /* 1️⃣ 証明生成（WebWorker）------------------------------------ */
     logLine('🌳 Merkle root 取得開始');
-    const { a, b, c, inputs } = await generateProof(noteBase64)
+    const chainRoot = await getCurrentRoot();
+    logLine('   • currentRoot =', chainRoot);
+
+    // const { a, b, c, inputs } = await generateProof(noteBase64)
+    const { a, b, c, inputs } = await generateProof(noteBase64, chainRoot)
     const [nullifierHash, root] = inputs
     logLine('✅ proof OK')
 
     /* 2️⃣ チェーン状態チェック -------------------------------------- */
-    const chainRoot = await getCurrentRoot()
+    // const chainRoot = await getCurrentRoot()
     logLine('chainRoot =', chainRoot.slice(0, 10), '…')
     if (chainRoot !== root) logLine('⚠️ root mismatch!')
 

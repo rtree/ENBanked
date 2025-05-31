@@ -1,4 +1,4 @@
-  import { Field, MerkleTree, PrivateKey, Mina, Bool } from 'snarkyjs';
+import { Field, MerkleTree, PrivateKey, Mina, Bool } from 'snarkyjs';
 import { Withdraw, Path } from '../circuits/withdraw.circuit.ts';
 import fs from 'fs';
 import path from 'path';

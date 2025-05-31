@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@worldcoin/minikit-js": "^1.9.4",
+    "comlink": "^4.4.2",
     "ethers": "^6.14.3",
     "poseidon-lite": "^0.3.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.1",
+    "snarkjs": "^0.7.5",
     "snarkyjs": "^0.12.1"
   },
   "devDependencies": {
