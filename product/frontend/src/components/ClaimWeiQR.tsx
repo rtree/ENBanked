@@ -67,7 +67,7 @@ export default function ClaimWeiQR() {
     const leafBig = poseidon([BigInt('0x'+note.n), BigInt('0x'+note.s)]);
     const leafHex = zeroPadValue(toBeHex(leafBig), 32).toLowerCase();   // ★ 0x + 32byte
     logLine('🔨 calc leaf   =', leafHex);
-    if(leafHex !== leaves[0].toLowerCase()){
+    if(!leaves.includes(leafHex) ){
       logLine('❌ Leaf mismatch → 証明に進まず終了');
       return;
     }
