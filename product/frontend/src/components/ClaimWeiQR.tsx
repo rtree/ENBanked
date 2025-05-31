@@ -57,6 +57,7 @@ export default function ClaimWeiQR() {
     if (!MiniKit.isInstalled()) return logLine('❌ MiniKit 未検出')
 
     /* 1️⃣ 証明生成（WebWorker）------------------------------------ */
+    logLine('🌳 Merkle root 取得開始');
     const { a, b, c, inputs } = await generateProof(noteBase64)
     const [nullifierHash, root] = inputs
     logLine('✅ proof OK')
@@ -87,6 +88,8 @@ export default function ClaimWeiQR() {
       logLine('🧪 eth_call ✅')
     } catch (err: any) {
       return logLine('🧪 eth_call ❌', err.reason || err.message)
+    }finally {
+      logLine('🔚 handleWithdraw END');
     }
 
     /* 4️⃣ MiniKit で送信 ------------------------------------------ */
@@ -140,7 +143,9 @@ export default function ClaimWeiQR() {
 
   return (
     <div style={{ margin: '1em' }}>
-      <button onClick={handleWithdraw}>💰 1 wei 受け取る</button>
+      <button
+       onClick={() => { logLine('🖱️ click'); handleWithdraw(); }}       
+       >💰 1 wei 受け取る</button>
       <pre
         style={{
           background: '#111',
