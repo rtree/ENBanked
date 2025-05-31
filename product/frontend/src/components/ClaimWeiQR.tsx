@@ -108,6 +108,16 @@ try {
         ])
     }
     logLine('testRooooot', cur.toString(16), cur.toString());
+function _H(a:string,b:string){
+  return poseidon([a, b]);
+}
+    const l0 = leaves;
+        const l1 = new Array(4);
+        const l2 = new Array(2);
+        for (let i; i < 4; i++) l1[i] = _H(l0[2 * i], l0[2 * i + 1]);
+        for (let i; i < 2; i++) l2[i] = _H(l1[2 * i], l1[2 * i + 1]);
+        const currentRoot = _H(l2[0], l2[1]);
+        logLine('currentRoot', currentRoot.toString(16), currentRoot.toString());
   } catch(e:any){
       return logLine('❌ Merkle path error:', e.stack, e.message);
 }
