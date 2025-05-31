@@ -4,7 +4,9 @@
 import { useEffect, useState } from 'react';
 import { MiniKit } from '@worldcoin/minikit-js';
 import { VAULT_ADDRESS, RPC_URL } from '../config';
-import { vaultWithdrawAbi as vaultAbi } from '../abi/vaultZkWei';
+// import { vaultWithdrawAbi as vaultAbi } from '../abi/vaultZkWei';
+import { vaultFullAbi  as vaultAbi } from '../abi/vaultZkWei';
+
 import { Interface, JsonRpcProvider, ZeroAddress } from 'ethers';
 import { proxy } from 'comlink';
 import { generateProof } from '../zk'; // クライアント側ラッパ (wrap 版)
