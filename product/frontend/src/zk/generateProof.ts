@@ -5,7 +5,7 @@ import { groth16 } from 'snarkjs';
 import { poseidon2 as poseidon } from 'poseidon-lite';
 import wasmUrl  from './withdraw_js/withdraw.wasm?url';
 import zkeyUrl  from './withdraw_final.zkey?url';
-import type { LogFn } from '../utils/logger'; 
+
 export type ProofInput = {
   noteB64: string;    // QR に入っている base64 文字列
   rootHex: string;    // currentRoot (0x…32byte)
@@ -30,7 +30,7 @@ const ZERO_HASHES: bigint[] = (() => {
 export async function generateProofRaw(
   noteB64: string,
   rootHex: string,
-  log: LogFn = () => {}
+  log: (msg: string) => void = () => {}
 ) {
   log('parse note');
   const note = JSON.parse(atob(noteB64));          // { n, s, idx }

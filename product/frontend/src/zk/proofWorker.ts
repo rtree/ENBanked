@@ -12,8 +12,8 @@ type WorkerArgs = ProofInput & { log: LogFn };
 /*――――――――――――――――――――*/
 
 expose({
-  generate: ({ noteB64, rootHex, log }: WorkerArgs) =>
-    generateProofRaw(noteB64, rootHex, log),
+  generate: ({ noteB64, rootHex, idx, leaves, log }: WorkerArgs) => 
+    generateProofRaw(noteB64, rootHex, log),  // log を渡して他の引数を調整
 });
 
 /* Worker 内エラーを UI へ転送 */

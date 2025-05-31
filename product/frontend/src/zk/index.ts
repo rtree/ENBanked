@@ -7,13 +7,13 @@ import type { ProofInput } from './generateProof';
 import type { LogFn } from '../utils/logger';
 
 interface WorkerApi {
-  generate(args: ProofInput & { log: LogFn }): Promise<any>;
+  generate(noteB64: string, rootHex: string, idx: number, leaves: string[]): Promise<any>;
 }
 
 const worker = wrap(new WorkerFactory()) as unknown as WorkerApi;
 
 /* React から呼ぶラッパー */
 export function generateProof(args: ProofInput, log: LogFn) {
-  console.log('💬 generateProof args:', args);
-  return worker.generate({ ...args, log: comlinkProxy(log) });
+  log('💬 generateProof args:', args);
+  return worker.generate(args.noteB64, args.rootHex, args.idx, args.leaves);
 }
