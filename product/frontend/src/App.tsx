@@ -14,9 +14,7 @@ const App = () => {
       <div>
         <h1>ENBanked</h1>
           <NotificationProvider>
-            <TransactionPopupProvider>
-              <SendETH />
-            </TransactionPopupProvider>
+            <SendETH />
           </NotificationProvider>
       </div>
   )

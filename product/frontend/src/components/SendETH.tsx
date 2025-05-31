@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
-import { useTransactionPopup } from '@blockscout/app-sdk'
+import { useTransactionPopup, TransactionPopupProvider } from '@blockscout/app-sdk'
 
 const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
 
@@ -45,6 +45,7 @@ const SendETH = () => {
   const [transactionId, setTransactionId] = useState<string | null>(null)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [log, setLog] = useState('')
+  const { openPopup } = useTransactionPopup() // Blockscout hook
 
   const debug = (label: string, data?: any) => {
     const time = new Date().toISOString()
@@ -96,36 +97,48 @@ const SendETH = () => {
       const response = await fetch(query)
       const data = await response.json()
       debug(`🔍 txHash取得:${data.transactionHash}, query:${query}`, data.transactionHash)
-      setTxHash(data.transactionHash)
+      if (data.transactionHash) {
+        setTxHash(data.transactionHash)
+      } else {
+        debug('⚠️ txHashがnullのためBlockscoutで表示')
+        if (walletAddress) {
+          openPopup({
+            chainId: '480', // World Chain
+            address: walletAddress,
+          })
+        }
+      }
     } catch (error) {
       debug(`❌ txHash取得失敗:${query}`, error)
     }
   }
 
-
   useEffect(() => {
     if (transactionId) {
       fetchTransactionHash(transactionId)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactionId])
+
   return (
     <div>
       <button onClick={() => sendTx('deposit')}>💸 Send</button>
       <button onClick={() => sendTx('withdraw')} style={{ marginLeft: '1rem' }}>
         💰 Receive
       </button>
-        <p>
-          Check wallet by Blockscout:<br/>
-          {' contract:'}
-          <a
-            href={`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
-          </a>
-\        </p><br/>
-          {walletAddress && (
+      <p>
+        Check wallet by Blockscout:<br />
+        {' contract:'}
+        <a
+          href={`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`https://worldchain-mainnet.explorer.alchemy.com/address/${contractAddress}`}
+        </a>
+      </p>
+      <br />
+      {walletAddress && (
         <p>
           {' wallet:'}
           <a
@@ -136,7 +149,7 @@ const SendETH = () => {
             {`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
           </a>
         </p>
-          )}
+      )}
       {txHash && (
         <p>
           TxHash:{' '}
@@ -164,4 +177,10 @@ const SendETH = () => {
   )
 }
 
-export default SendETH
+const WrappedApp = () => (
+  <TransactionPopupProvider>
+    <SendETH />
+  </TransactionPopupProvider>
+)
+
+export default WrappedApp
