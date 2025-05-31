@@ -84,7 +84,7 @@ const ClaimETHCode = () => {
         setWalletAddress(finalPayload.from)
         setTxHash(null)
         debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
-        await openTxToast('480', finalPayload.transaction_hash)
+        // await openTxToast('480', finalPayload.transaction_hash)
       } else {
         debug('❌ トランザクション送信失敗', finalPayload)
       }
