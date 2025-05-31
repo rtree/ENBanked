@@ -47,11 +47,12 @@ export default function ClaimWeiQR() {
     const b64 = new URLSearchParams(window.location.search).get('note')
     if (b64) {
       setNote(b64)
-      logLine('note loaded')
+      logLine(`note loaded: b64: ${b64}`)
     }
   }, [])
 
   async function handleWithdraw() {
+    logLine('🟢 handleWithdraw START (button clicked)');
     if (!noteBase64) return logLine('❌ note なし')
     if (!MiniKit.isInstalled()) return logLine('❌ MiniKit 未検出')
 
