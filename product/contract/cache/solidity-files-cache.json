@@ -75,8 +75,8 @@
       ]
     },
     "/home/araki/ENBanked/product/contract/contracts/Verifier.sol": {
-      "lastModificationDate": 1748727556090,
-      "contentHash": "12fdc9c76fc0316913f017c82bac3d65",
+      "lastModificationDate": 1748731009788,
+      "contentHash": "eda006554ae9f59022ac759d2b284a96",
       "sourceName": "contracts/Verifier.sol",
       "solcConfig": {
         "version": "0.8.19",
