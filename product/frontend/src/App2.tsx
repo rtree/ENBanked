@@ -3,7 +3,7 @@ import { MiniKit } from '@worldcoin/minikit-js';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { NotificationProvider } from '@blockscout/app-sdk';
 
-import { APP_ID } from './config.tx';
+import { APP_ID } from './config.ts';
 import SendWeiQR      from './components/SendWeiQR';
 import ClaimWeiQR     from './components/ClaimWeiQR';
 

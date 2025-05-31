@@ -35,4 +35,18 @@ my-zk-vault/           ← プロジェクトのルート
 │   ├─ src/…
 │   └─ package.json
 ├─ hardhat.config.ts
-└─ package.json
+└─ package.json 
+
+===========================================================
+
+# ルート直下で
+mkdir build
+# ここに withdraw.r1cs / withdraw_final.zkey などを置く想定
+cd build
+
+# (例) powers of tau と回路 r1cs が既にある想定
+snarkjs zkey new     withdraw.r1cs  pot12_final.ptau  withdraw_0000.zkey
+snarkjs zkey beacon  withdraw_0000.zkey withdraw_final.zkey \
+        0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef 10
+snarkjs zkey export solidityverifier withdraw_final.zkey ../contracts/Verifier.sol
+cd ..
