@@ -137,7 +137,7 @@ export default function ClaimWeiQR() {
   if (!noteB64) return <p>❌ note パラメータが見つかりません</p>;
 
   return (
-    <div style={{ margin: '1em' }}>
+    <div style={{ margin: '1em', backgroundColor: 'white', padding: '1em', borderRadius: '6px'  }}>
       <button onClick={handleWithdraw}>💰 1 wei 受け取る</button>
       <pre
         style={{
