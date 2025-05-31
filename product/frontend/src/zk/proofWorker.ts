@@ -7,16 +7,16 @@ import { generateProofRaw } from './generateProof';
 import type { ProofInput } from './generateProof';
 import type { LogFn } from '../utils/logger';
 
-/*―――― ★ ここを追加 ――――*/
-type WorkerArgs = ProofInput & { log: LogFn };
-/*――――――――――――――――――――*/
+/* WorkerArgs 型を定義 */
+type WorkerArgs = {
+  note: { n: string; s: string; idx: number };  // noteB64 をデコードして得たオブジェクト
+  rootHex: string;                             // rootHex を文字列として受け取る
+  log: LogFn;                                  // log は進捗を表示する関数
+};
 
 expose({
-  generate: ({ noteB64, rootHex, idx, leaves, log }: WorkerArgs) => {
-    // base64 をデコードして { n, s, idx } オブジェクトに変換
-    const note = JSON.parse(atob(noteB64));  // noteB64 をデコードして { n, s, idx }
-    return generateProofRaw(note, rootHex, log);  // { n, s, idx } を渡す
-  }
+  generate: ({ note, rootHex, log }: WorkerArgs) => 
+    generateProofRaw(note, rootHex, log),
 });
 
 /* Worker 内エラーを UI へ転送 */

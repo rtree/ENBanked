@@ -28,26 +28,22 @@ const ZERO_HASHES: bigint[] = (() => {
 
 /* ---------- 抜本的に pathElements / pathIndices は「idx=0 前提」 ---------- */
 export async function generateProofRaw(
-  note: { n: string; s: string; idx: number },  // 引数として渡される
+  note: { n: string; s: string; idx: number },
   rootHex: string,
   log: (msg: string) => void = () => {}
 ) {
-  log('using parsed note');
-  
-  if (note.idx !== 0) throw new Error('idx≠0 未対応');  // idx≠0 の場合にエラーを出す
+  if (note.idx !== 0) throw new Error('idx≠0 未対応');
 
   const input = {
-    n:    BigInt('0x' + note.n),
-    s:    BigInt('0x' + note.s),
+    n: BigInt('0x' + note.n),
+    s: BigInt('0x' + note.s),
     root: BigInt(rootHex),
     pathElements: ZERO_HASHES,
-    pathIndices:  [0, 0, 0],       // 左枝固定
+    pathIndices: [0, 0, 0],
   };
 
   log('fullProve start');
-  const { proof, publicSignals } = await groth16.fullProve(
-    input, wasmUrl, zkeyUrl
-  );
+  const { proof, publicSignals } = await groth16.fullProve(input, wasmUrl, zkeyUrl);
   log('fullProve done');
 
   return {
@@ -57,9 +53,6 @@ export async function generateProofRaw(
       proof.pi_b[1].slice(0, 2).map(BigInt),
     ],
     c: proof.pi_c.slice(0, 2).map(BigInt),
-    inputs: [
-      publicSignals[0],   // nullifierHash
-      rootHex             // root
-    ] as [string, string],
+    inputs: [publicSignals[0], rootHex],
   };
 }
