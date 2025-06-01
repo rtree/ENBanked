@@ -5,8 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['localhost', 'lenient-sponge-readily.ngrok-free.app'],
-    host: true,
+    host:true,
+    strictPort: true,
+    // allowedHosts: ['localhost', 'lenient-sponge-readily.ngrok-free.app'],
+    // host: true,
     port: 5173,
   }
 })
