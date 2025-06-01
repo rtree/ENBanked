@@ -27,7 +27,7 @@ const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<bo
 
 /* base64url → base64 */
 const b64url2b64 = (s: string) => s.replace(/-/g, '+').replace(/_/g, '/');
-function stringifyWithBigInt(obj) {
+function stringifyWithBigInt(obj: any) {
   return JSON.stringify(obj, (key, value) =>
     typeof value === 'bigint' ? value.toString(16) : value
   );

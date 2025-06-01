@@ -94,7 +94,7 @@ const SendETHCodeTrue = () => {
 
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id);
-        setWalletAddress(finalPayload.to);
+        // setWalletAddress(finalPayload.to);
         setTxHash(finalPayload.transaction_id);
         debug(`✅ Withdrawal successful: ${finalPayload.transaction_id}`);
       } else {
