@@ -165,27 +165,29 @@ function _H(a:string,b:string){
     /* 6) withdraw 呼び出し ---------------------------------------- */
     // ... ここは以前のまま (省略) ...
 
-  try {
-      logLine('🔄 Sending withdraw transaction via MiniKit...');
-      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
-        transaction: [
-          {
-            address: VAULT_ADDRESS,
-            abi: vaultWithdrawAbi,
-            functionName: 'withdraw',
-            args: [
-              a,
-              b,
-              c,
-              nullifierHash,
-              root,
-              MiniKit.user.walletAddress, // Replace with recipient address if needed
-            ],
-          },
-        ],
-      });
+ try {
+    logLine('🔄 Sending withdraw transaction via MiniKit...');
+    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+      transaction: [
+        {
+          address: VAULT_ADDRESS,
+          abi: vaultWithdrawAbi,
+          functionName: 'withdraw',
+          args: [
+            a,
+            b,
+            c,
+            nullifierHash,
+            root,
+            MiniKit.user.walletAddress, 
+          ],
+        },
+      ],
+    });
 
-    }     
+  } catch (e: any) {
+    //logLine('💥 MiniKit transaction error:', e.message);
+  }        
     
   };
 
