@@ -9,6 +9,6 @@ export default defineConfig({
     strictPort: true,
     // allowedHosts: ['localhost', 'lenient-sponge-readily.ngrok-free.app'],
     // host: true,
-    port: 5173,
+    port: 9000,
   }
 })
