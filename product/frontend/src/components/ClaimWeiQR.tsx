@@ -164,6 +164,37 @@ function _H(a:string,b:string){
 
     /* 6) withdraw 呼び出し ---------------------------------------- */
     // ... ここは以前のまま (省略) ...
+
+ try {
+    logLine('🔄 Sending withdraw transaction via MiniKit...');
+    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+      transaction: [
+        {
+          address: VAULT_ADDRESS,
+          abi: vaultAbi,
+          functionName: 'withdraw',
+          args: [
+            a,
+            b,
+            c,
+            nullifierHash,
+            root,
+            ZeroAddress, // Replace with recipient address if needed
+          ],
+        },
+      ],
+    });
+
+    if (finalPayload.status === 'success') {
+      logLine('✅ Withdrawal successful! Transaction ID:', finalPayload.transaction_id);
+    } else {
+      logLine('❌ Withdrawal failed:', finalPayload.error_code);
+    }
+  } catch (e: any) {
+    logLine('💥 MiniKit transaction error:', e.message);
+  }    
+    
+
   };
 
   /* ---------- UI ---------- */

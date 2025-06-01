@@ -14,5 +14,12 @@ module.exports = {
         mnemonic: MNEMONIC
       }
     },
+    flowMainnet: {
+      url: `https://mainnet.evm.nodes.onflow.org/`,
+      chainId: 747,
+      accounts: {
+        mnemonic: MNEMONIC
+      }
+    },
   },
 };
