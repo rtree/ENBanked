@@ -99,3 +99,7 @@ for (let level = 0; level < 3; level++) {
     ] as [string, string],
   };
 }
+function poseidonHex(a:string,b:string){
+  const h = poseidon([BigInt(a),BigInt(b)]);
+  return zeroPadValue(toBeHex(h),32);
+}
