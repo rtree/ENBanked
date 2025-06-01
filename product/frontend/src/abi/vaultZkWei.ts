@@ -1,5 +1,56 @@
 //PRJROOT/product/frontend/src/abi/vaultZkWei.ts
 
+
+/* ───────── Mock 用（MiniKit に渡すのはこれだけ） ───────── */
+
+const mockVaultAbi = [
+  {
+    name: 'deposit',
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: 'code',
+        type: 'uint16',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    name: 'withdraw',
+    inputs: [
+      {
+        internalType: 'uint16',
+        name: 'code',
+        type: 'uint16',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint16',
+        name: 'code',
+        type: 'uint16',
+      },
+    ],
+    name: 'CodeCreated',
+    type: 'event',
+  },
+]
+
 /* ───────── Deposit 用（MiniKit に渡すのはこれだけ） ───────── */
 export const vaultDepositAbi = [
   {
