@@ -6,6 +6,8 @@
   ],
     "compilerOptions": {
     "types": ["node"],        // node の型
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "noUnusedLocals": false, // 未使用のローカル変数を許可
+    "noUnusedParameters": false, // 未使用のパラメータを許可
   },  
 }
