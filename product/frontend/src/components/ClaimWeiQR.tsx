@@ -97,16 +97,7 @@ for (let level = 0; level < 3; level++) {
   for (let i = 0; i < currentLevelLeaves.length; i += 2) {
     const left = currentLevelLeaves[i];
     const right = currentLevelLeaves[i + 1];
-    nextLevelLeaves.push(poseidonHex(left, let currentIndex = leafIndex;
-
-    for (let level = 0; level < 3; level++) {
-      const siblingIndex = currentIndex ^ 1; // XOR to get sibling index
-      pathIndices.push(currentIndex % 2);   // 0 for left, 1 for right
-      pathElements.push(leaves[siblingIndex]);
-
-      // Move to the parent level
-      currentIndex = Math.floor(currentIndex / 2);
-    }right));
+    nextLevelLeaves.push(poseidonHex(left, right));
   }
 
   currentLevelLeaves = nextLevelLeaves; // Move to the next level

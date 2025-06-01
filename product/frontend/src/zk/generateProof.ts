@@ -5,6 +5,7 @@ import { groth16 } from 'snarkjs';
 import { poseidon2 as poseidon } from 'poseidon-lite';
 import wasmUrl from './withdraw_js/withdraw.wasm?url';
 import zkeyUrl from './withdraw_final.zkey?url';
+import {  toBeHex, zeroPadValue } from 'ethers';
 
 export type ProofInput = {
   noteB64: string;  // base64 文字列 (note)
