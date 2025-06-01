@@ -25,12 +25,12 @@ template Withdraw() {
         h[i].inputs[1] <== IfElse()(pathIndices[i], cur, pathElements[i]);
         cur = h[i].out;
     }
-    //cur === root;
+    cur === root;
 
-    //component nH = Poseidon(1);
-    //nH.inputs[0] <== n;
-    //nHash <== nH.out;
-    nHash <== cur;
+    component nH = Poseidon(1);
+    nH.inputs[0] <== n;
+    nHash <== nH.out;
+    //nHash <== cur;
 }
 
 template IfElse() {
