@@ -1,138 +1,79 @@
 // SendETHCode.tsx
-import { useState } from 'react'
-import { MiniKit } from '@worldcoin/minikit-js'
-import { useNotification, NotificationProvider, TransactionPopupProvider } from 
-'@blockscout/app-sdk'
-import QRCodeGenerator from './QRCodeGenerator'
+import { useState } from 'react';
+import { MiniKit } from '@worldcoin/minikit-js';
+import { useNotification, NotificationProvider, TransactionPopupProvider } from '@blockscout/app-sdk';
+import QRCodeGenerator from './QRCodeGenerator';
 
-const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1'
-const contractAddress = '0x78242F5BF2b44CcedCb601FF81cF2743AE4f9341'
-
-const vaultAbi = [
-  {
-    name: 'deposit',
-    inputs: [
-      {
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    name: 'withdraw',
-    inputs: [
-      {
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
-      },
-    ],
-    name: 'CodeCreated',
-    type: 'event',
-  },
-]
+const APP_ID = 'app_c22b23e8101db637591586c4a8ca02b1';
+const contractAddress = '0x4934C573FA9a8B72EA0325e20CfA4d72365045C2';
 
 const SendETHCodeTrue = () => {
-  const [code, setCode] = useState<number | null>(null)
-  const [txHash, setTxHash] = useState<string | null>(null)
-  const [transactionId, setTransactionId] = useState<string | null>(null)
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [log, setLog] = useState('')
-  const { openTxToast } = useNotification()
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [log, setLog] = useState('');
+  const { openTxToast } = useNotification();
 
   const debug = (label: string, data?: any) => {
-    const time = new Date().toISOString()
-    const line = `[${time}] ${label}${data ? ': ' + JSON.stringify(data) : ''}`
-    setLog((prev) => prev + '\n' + line)
-  }
-
-  const generateCode = () => {
-    const raw = Math.floor(Math.random() * 10000)
-    setCode(raw)
-    debug('🎲 code generated', raw)
-    return raw
-  }
+    const time = new Date().toISOString();
+    const line = `[${time}] ${label}${data ? ': ' + JSON.stringify(data) : ''}`;
+    setLog((prev) => prev + '\n' + line);
+  };
 
   const sendDeposit = async () => {
     if (!MiniKit.isInstalled()) {
-      debug('⚠️ MiniKit未検出。WorldAppから開いてください。')
-      return
+      debug('⚠️ MiniKit未検出。WorldAppから開いてください。');
+      return;
     }
 
-    const generatedCode = generateCode()
-
     try {
+      debug('📡 Sending deposit transaction...');
       const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: contractAddress,
-            abi: vaultAbi,
+            abi: [
+              {
+                name: 'deposit',
+                inputs: [],
+                outputs: [],
+                stateMutability: 'payable',
+                type: 'function',
+              },
+            ],
             functionName: 'deposit',
-            args: [generatedCode],
-            value: '0x1',
+            args: [],
+            value: '0x1', // 1 wei
           },
         ],
-      })
+      });
 
-      debug(`📦 MiniKit deposit result`, finalPayload)
+      debug(`📦 MiniKit deposit result`, finalPayload);
 
       if (finalPayload.status === 'success') {
-        setTransactionId(finalPayload.transaction_id)
-        setWalletAddress(finalPayload.from)
-        setTxHash(null)
-        debug(`✅ transaction_id 取得`, finalPayload.transaction_id)
+        setTransactionId(finalPayload.transaction_id);
+        setWalletAddress(finalPayload.from);
+        setTxHash(finalPayload.transaction_id);
+        debug(`✅ Transaction successful: ${finalPayload.transaction_id}`);
       } else {
-        debug('❌ トランザクション送信失敗', finalPayload)
+        debug('❌ Transaction failed', finalPayload);
       }
     } catch (err) {
-      debug('💥 deposit例外', err)
+      debug('💥 Deposit exception', err);
     }
-  }
-
-  const claimUrl = code !== null
-    ? `https://worldcoin.org/mini-app?app_id=${APP_ID}&path=${encodeURIComponent(`/claim?code=${code}`)}`
-    : ''
+  };
 
   return (
     <div>
-      <button onClick={sendDeposit}>💸 Send + QR発行</button>
-
-      {code !== null && walletAddress && (
-        <QRCodeGenerator code={code} claimUrl={claimUrl} />
-      )}
+      <button onClick={sendDeposit}>💸 Send 1 wei</button>
       <p>
-        {' Check your wallet by Blockscout:'}<img src="https://docs.blockscout.com/~gitbook/image?url=https%3A%2F%2F1077666658-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-Lq1XoWGmy8zggj_u2fM%252Ficon%252FyFkt6mPJJvjKiSBBOppe%252FBS_logo_slack.png%3Falt%3Dmedia%26token%3D3bbbb670-528a-4c2b-aec8-f149bd5e059f&width=16&dpr=2&quality=100&sign=393be4b0&sv=2"/><br />
-        {' wallet:'}
+        {' Check your wallet by Blockscout:'}
         <a
           href={`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
           target="_blank"
           rel="noreferrer"
         >
-          {`https://worldchain-mainnet.explorer.alchemy.com/address/${walletAddress}`}
+          {walletAddress || 'No wallet address'}
         </a>
       </p>
       <pre
@@ -150,8 +91,8 @@ const SendETHCodeTrue = () => {
         {log || '📭 Log is here'}
       </pre>
     </div>
-  )
-}
+  );
+};
 
 const WrappedSendETHCode = () => (
   <NotificationProvider>
@@ -159,6 +100,6 @@ const WrappedSendETHCode = () => (
       <SendETHCodeTrue />
     </TransactionPopupProvider>
   </NotificationProvider>
-)
+);
 
-export default WrappedSendETHCode
+export default WrappedSendETHCode;

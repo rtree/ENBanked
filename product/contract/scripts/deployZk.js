@@ -5,17 +5,20 @@ const hre = require("hardhat");
 
 async function main() {
 
+  const SendETHZ = await hre.ethers.getContractFactory("SendETHZ");
+  const seth = await SendETHZ.deploy();
+  await seth.waitForDeployment();
+  console.log("✅ SendETHZ deployed to:", await seth.getAddress());
+
   const Groth16Verifier = await hre.ethers.getContractFactory("Groth16Verifier");
   const g16v = await Groth16Verifier.deploy();
   await g16v.waitForDeployment();
   console.log("✅ Groth16Verifier deployed to:", await g16v.getAddress());
-
   
   const PoseidonT3 = await hre.ethers.getContractFactory("PoseidonT3");
   const pt3 = await PoseidonT3.deploy();
   await pt3.waitForDeployment();
   console.log("✅ PoseidonT3 deployed to:", await pt3.getAddress());
-
   
   const VaultZkWei = await hre.ethers.getContractFactory("VaultZkWei", {
     libraries: {

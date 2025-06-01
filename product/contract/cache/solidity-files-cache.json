@@ -143,6 +143,41 @@
       "artifacts": [
         "PoseidonT3"
       ]
+    },
+    "/home/araki/ENBanked/product/contract/contracts/SendETHZ.sol": {
+      "lastModificationDate": 1748746194065,
+      "contentHash": "9e62157496e559985830b55deab16a98",
+      "sourceName": "contracts/SendETHZ.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "SendETHZ"
+      ]
     }
   }
 }

@@ -3,33 +3,9 @@
 
 /* ───────── Mock 用（MiniKit に渡すのはこれだけ） ───────── */
 
-const mockVaultAbi = [
-  {
-    name: 'deposit',
-    inputs: [
-      {
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    name: 'withdraw',
-    inputs: [
-      {
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
+
+/* ───────── SendETHZ ABI ───────── */
+export const sendETHZAbi = [
   {
     anonymous: false,
     inputs: [
@@ -41,15 +17,53 @@ const mockVaultAbi = [
       },
       {
         indexed: false,
-        internalType: 'uint16',
-        name: 'code',
-        type: 'uint16',
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: 'CodeCreated',
+    name: 'Deposited',
     type: 'event',
   },
-]
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'Withdrawn',
+    type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'deposit',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    stateMutability: 'payable',
+    type: 'receive',
+  },
+] as const;
+
 
 /* ───────── Deposit 用（MiniKit に渡すのはこれだけ） ───────── */
 export const vaultDepositAbi = [
