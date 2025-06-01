@@ -134,12 +134,22 @@ export default function SendWeiQR() {
   return (
     <div style={{ margin: '1em' }}>
       <p>✅ <b>TxID:</b> {txid}</p>
-      <p>👇 QR をあてさきに渡してください</p>
+      <p>👇 pass QR to recipients</p>
       <QRCodeSVG value={claimUrl} size={180} />
       <p>
         <a href={claimUrl}>{claimUrl}</a>
       </p>
-
+      <p>
+        {' Check your wallet by Blockscout:'}<img src="https://docs.blockscout.com/~gitbook/image?url=https%3A%2F%2F1077666658-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-Lq1XoWGmy8zggj_u2fM%252Ficon%252FyFkt6mPJJvjKiSBBOppe%252FBS_logo_slack.png%3Falt%3Dmedia%26token%3D3bbbb670-528a-4c2b-aec8-f149bd5e059f&width=16&dpr=2&quality=100&sign=393be4b0&sv=2"/><br />
+        {' wallet:'}
+        <a
+          href={`https://worldchain-mainnet.explorer.alchemy.com/address/${MiniKit.user.walletAddress}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {`https://worldchain-mainnet.explorer.alchemy.com/address/${MiniKit.user.walletAddress}`}
+        </a>
+      </p>
       <pre
         style={{
           background: '#111',
