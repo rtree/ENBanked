@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { MiniKit } from '@worldcoin/minikit-js';
 import { VAULT_ADDRESS, RPC_URL } from '../config';
-import { vaultFullAbi as vaultAbi } from '../abi/vaultZkWei';
+import { vaultFullAbi as vaultAbi, vaultWithdrawAbi } from '../abi/vaultZkWei';
 import { Interface, JsonRpcProvider, ZeroAddress, toBeHex, zeroPadValue } from 'ethers';
 import { poseidon2 as poseidon } from 'poseidon-lite';          // ★ Poseidonを直接読む
 import { generateProofRaw } from '../zk/generateProof';
@@ -165,7 +165,27 @@ function _H(a:string,b:string){
     /* 6) withdraw 呼び出し ---------------------------------------- */
     // ... ここは以前のまま (省略) ...
 
-    
+  try {
+      logLine('🔄 Sending withdraw transaction via MiniKit...');
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: VAULT_ADDRESS,
+            abi: vaultWithdrawAbi,
+            functionName: 'withdraw',
+            args: [
+              a,
+              b,
+              c,
+              nullifierHash,
+              root,
+              ZeroAddress, // Replace with recipient address if needed
+            ],
+          },
+        ],
+      });
+
+    }     
     
   };
 
