@@ -53,7 +53,7 @@ const SendETHCodeTrue = () => {
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id);
         setWalletAddress(finalPayload.from);
-        setTxHash(finalPayload.transaction_hash);
+        setTxHash(finalPayload.transaction_id);
         debug(`✅ Transaction successful: ${finalPayload.transaction_id}`);
       } else {
         debug('❌ Transaction failed', finalPayload);
@@ -95,7 +95,7 @@ const SendETHCodeTrue = () => {
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id);
         setWalletAddress(finalPayload.to);
-        setTxHash(finalPayload.transaction_hash);
+        setTxHash(finalPayload.transaction_id);
         debug(`✅ Withdrawal successful: ${finalPayload.transaction_id}`);
       } else {
         debug('❌ Withdrawal failed', finalPayload);
