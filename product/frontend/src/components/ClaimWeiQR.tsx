@@ -159,8 +159,8 @@ function _H(a:string,b:string){
     logLine('✅ proof OK (nullifierHash=', nullifierHash, ')');
 
     /* 5) nullifier 重複チェック ------------------------------------ */
-    if(await isNullifierSpent(nullifierHash))
-      return logLine('❌ 既に使用済み nullifier');
+    // if(await isNullifierSpent(nullifierHash))
+    //   return logLine('❌ 既に使用済み nullifier');
 
     /* 6) withdraw 呼び出し ---------------------------------------- */
     // ... ここは以前のまま (省略) ...
