@@ -196,29 +196,28 @@ function _H(a:string,b:string){
   };
     mockWithdraw();
 
- try {
-    logLine('🔄 Sending withdraw transaction via MiniKit...');
-    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
-      transaction: [
-        {
-          address: VAULT_ADDRESS,
-          abi: vaultWithdrawAbi,
-          functionName: 'withdraw',
-          args: [
-            a,
-            b,
-            c,
-            nullifierHash,
-            root,
-            MiniKit.user.walletAddress, 
-          ],
-        },
-      ],
-    });
-
-  } catch (e: any) {
-    //logLine('💥 MiniKit transaction error:', e.message);
-  }        
+//  try {
+//     logLine('🔄 Sending withdraw transaction via MiniKit...');
+//     const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+//       transaction: [
+//         {
+//           address: VAULT_ADDRESS,
+//           abi: vaultWithdrawAbi,
+//           functionName: 'withdraw',
+//           args: [
+//             a,
+//             b,
+//             c,
+//             nullifierHash,
+//             root,
+//             MiniKit.user.walletAddress, 
+//           ],
+//         },
+//       ],
+//     });
+//   } catch (e: any) {
+//     //logLine('💥 MiniKit transaction error:', e.message);
+//   }        
     
   };
 
