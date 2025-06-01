@@ -6,6 +6,7 @@ import { NotificationProvider } from '@blockscout/app-sdk';
 import { APP_ID } from './config.ts';
 import SendWeiQR      from './components/SendWeiQR';
 import ClaimWeiQR     from './components/ClaimWeiQR';
+import SendETHCodeTrue     from './components/SendETHCodeTrue';
 
 const App = () => {
   useEffect(() => {
@@ -19,6 +20,7 @@ const App = () => {
         <Routes>
           <Route path='/'       element={<SendWeiQR />} />
           <Route path='/claim'  element={<ClaimWeiQR/>} />
+          <Route path='/mock'   element={<SendETHCodeTrue/>} />
         </Routes>
       </Router>
     </NotificationProvider>
