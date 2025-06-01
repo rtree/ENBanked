@@ -108,7 +108,7 @@ export default function SendWeiQR() {
     return (
       <div style={{ margin: '1em' }}>
         <button onClick={handleDeposit} disabled={waiting}>
-          {waiting ? '⏳ 送信中…' : '💸 1 wei を預けて QR 作成'}
+          {waiting ? '⏳ Sending…' : '💸 Convert Crypto to QR '}
         </button>
 
       <p>

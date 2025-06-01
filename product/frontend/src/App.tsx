@@ -16,7 +16,7 @@ const App = () => {
 
   return (
       <div>
-        <h1>ENBanked</h1>
+        <h1>ENBANKED</h1>
           <NotificationProvider>
             {/* <SendETH /> */}
               <Router>

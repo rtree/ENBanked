@@ -16,7 +16,7 @@ const App = () => {
   return (
     <NotificationProvider>
       <Router>
-        <h1 style={{textAlign:'center'}}>ENBanked (zk-wei)</h1>
+        <h1 style={{textAlign:'center'}}>ENBANKED (zk-wei)</h1>
         <Routes>
           <Route path='/'       element={<SendWeiQR />} />
           <Route path='/claim'  element={<ClaimWeiQR/>} />
