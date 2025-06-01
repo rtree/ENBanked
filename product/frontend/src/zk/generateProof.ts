@@ -50,16 +50,25 @@ export async function generateProofRaw(
   // 入力データ作成
   const pathIndices: number[] = [];
   const pathElements: string[] = [];
-  let currentIndex = leafIndex;
+  let currentLevelLeaves = [...leaves]; // Start with the bottom-level leaves
+let currentIndex = leafIndex;
 
-  for (let level = 0; level < TREE_DEPTH; level++) {
-    const siblingIndex = currentIndex ^ 1; // XOR to get sibling index
-    pathIndices.push(currentIndex % 2);   // 0 for left, 1 for right
-    pathElements.push(leaves[siblingIndex]);
+for (let level = 0; level < 3; level++) {
+  const siblingIndex = currentIndex ^ 1; // XOR to get sibling index
+  pathIndices.push(currentIndex % 2);   // 0 for left, 1 for right
+  pathElements.push(currentLevelLeaves[siblingIndex]);
 
-    // Move to the parent level
-    currentIndex = Math.floor(currentIndex / 2);
+  // Compute the parent level
+  const nextLevelLeaves: string[] = [];
+  for (let i = 0; i < currentLevelLeaves.length; i += 2) {
+    const left = currentLevelLeaves[i];
+    const right = currentLevelLeaves[i + 1];
+    nextLevelLeaves.push(poseidonHex(left, right));
   }
+
+  currentLevelLeaves = nextLevelLeaves; // Move to the next level
+  currentIndex = Math.floor(currentIndex / 2);
+}
 
   const input = {
     n: BigInt('0x' + note.n),
