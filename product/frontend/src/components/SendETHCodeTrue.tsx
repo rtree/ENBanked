@@ -53,7 +53,7 @@ const SendETHCodeTrue = () => {
       if (finalPayload.status === 'success') {
         setTransactionId(finalPayload.transaction_id);
         setWalletAddress(finalPayload.from);
-        setTxHash(finalPayload.transaction_id);
+        setTxHash(finalPayload.transaction_hash);
         debug(`✅ Transaction successful: ${finalPayload.transaction_id}`);
       } else {
         debug('❌ Transaction failed', finalPayload);
@@ -63,9 +63,52 @@ const SendETHCodeTrue = () => {
     }
   };
 
+  const withdraw = async () => {
+    if (!MiniKit.isInstalled()) {
+      debug('⚠️ MiniKit未検出。WorldAppから開いてください。');
+      return;
+    }
+
+    try {
+      debug('📡 Sending withdraw transaction...');
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: contractAddress,
+            abi: [
+              {
+                name: 'withdraw',
+                inputs: [],
+                outputs: [],
+                stateMutability: 'nonpayable',
+                type: 'function',
+              },
+            ],
+            functionName: 'withdraw',
+            args: [],
+          },
+        ],
+      });
+
+      debug(`📦 MiniKit withdraw result`, finalPayload);
+
+      if (finalPayload.status === 'success') {
+        setTransactionId(finalPayload.transaction_id);
+        setWalletAddress(finalPayload.to);
+        setTxHash(finalPayload.transaction_hash);
+        debug(`✅ Withdrawal successful: ${finalPayload.transaction_id}`);
+      } else {
+        debug('❌ Withdrawal failed', finalPayload);
+      }
+    } catch (err) {
+      debug('💥 Withdraw exception', err);
+    }
+  };
+
   return (
     <div>
       <button onClick={sendDeposit}>💸 Send 1 wei</button>
+      <button onClick={withdraw} style={{ marginLeft: '10px' }}>🏦 Withdraw 1 wei</button>
       <p>
         {' Check your wallet by Blockscout:'}
         <a
