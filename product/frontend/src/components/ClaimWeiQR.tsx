@@ -179,7 +179,7 @@ function _H(a:string,b:string){
               c,
               nullifierHash,
               root,
-              ZeroAddress, // Replace with recipient address if needed
+              MiniKit.user.walletAddress, // Replace with recipient address if needed
             ],
           },
         ],
