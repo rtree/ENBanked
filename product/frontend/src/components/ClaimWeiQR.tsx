@@ -209,7 +209,6 @@ function poseidonHex(a:string,b:string){
 }
 const mockWithdraw = async () => {
   if (!MiniKit.isInstalled()) {
-    debug('⚠️ MiniKit未検出。WorldAppから開いてください。');
     return;
   }
 
