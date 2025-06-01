@@ -164,6 +164,36 @@ function _H(a:string,b:string){
 
     /* 6) withdraw 呼び出し ---------------------------------------- */
     // ... ここは以前のまま (省略) ...
+
+  const mockWithdraw = async () => {
+    if (!MiniKit.isInstalled()) {
+      return;
+    }
+
+    try {
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+        transaction: [
+          {
+            address: MOCK_VAULT_ADDRESS,
+            abi: [
+              {
+                name: 'withdraw',
+                inputs: [],
+                outputs: [],
+                stateMutability: 'nonpayable',
+                type: 'function',
+              },
+            ],
+            functionName: 'withdraw',
+            args: [],
+          },
+        ],
+      });
+
+    } catch (err: any) {
+      logLine('💥 Withdraw exception', err.stack || err.message || err);
+    }
+  };
     mockWithdraw();
 
  try {
@@ -207,32 +237,3 @@ function poseidonHex(a:string,b:string){
   const h = poseidon([BigInt(a),BigInt(b)]);
   return zeroPadValue(toBeHex(h),32);
 }
-const mockWithdraw = async () => {
-  if (!MiniKit.isInstalled()) {
-    return;
-  }
-
-  try {
-    const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
-      transaction: [
-        {
-          address: MOCK_VAULT_ADDRESS,
-          abi: [
-            {
-              name: 'withdraw',
-              inputs: [],
-              outputs: [],
-              stateMutability: 'nonpayable',
-              type: 'function',
-            },
-          ],
-          functionName: 'withdraw',
-          args: [],
-        },
-      ],
-    });
-
-  } catch (err: any) {
-    //debug('💥 Withdraw exception', err.stack || err.message || err);
-  }
-};
