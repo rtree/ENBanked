@@ -225,7 +225,7 @@ function _H(a:string,b:string){
   if(!noteB64) return <p>❌ note パラメータが見つかりません</p>;
   return (
     <div style={{margin:'1em',background:'#fff',padding:'1em',borderRadius:6}}>
-      <button onClick={handleWithdraw}>💰 1 wei 受け取る</button>
+      <button onClick={handleWithdraw}>💰 Refund Crypto </button>
       <pre style={{background:'#111',color:'#0f0',padding:'1em',fontSize:12,maxHeight:260,overflowY:'auto',whiteSpace:'pre-wrap'}}>{log}</pre>
     </div>
   );
