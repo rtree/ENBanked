@@ -25,7 +25,7 @@ const getCurrentRoot   = () => read('currentRoot') as Promise<string>;
 const getLeaf          = (i: number) => read('leaves', [i]) as Promise<string>;
 const isNullifierSpent = (h: string) => read('nullifierUsed', [h]) as Promise<boolean>;
 
-/* base64url → base64 */
+/* base64url → base64  */
 const b64url2b64 = (s: string) => s.replace(/-/g, '+').replace(/_/g, '/');
 function stringifyWithBigInt(obj: any) {
   return JSON.stringify(obj, (key, value) =>
